@@ -1,10 +1,20 @@
 [project]
 name = "backend"
 version = "0.1.0"
-description = "Add your description here"
+description = "Easy ICS - Image/Text to ICS Calendar Generator"
 readme = "README.md"
 requires-python = ">=3.11"
 dependencies = [
     "fastapi[standard]>=0.120.0",
     "pydantic[timezone]>=2.12.3",
+    "pytesseract>=0.3.10",
+    "pillow>=10.0.0",
+    "python-multipart>=0.0.6",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.4.0",
+    "pytest-asyncio>=0.21.0",
+    "httpx>=0.24.0",
 ]
