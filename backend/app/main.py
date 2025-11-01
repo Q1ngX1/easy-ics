@@ -43,7 +43,7 @@ def health_check():
 
 
 def main():
-    print("Hello from backend!")
+    pass
 
 
 if __name__ == "__main__":
