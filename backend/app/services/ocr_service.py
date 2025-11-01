@@ -35,12 +35,12 @@ def _get_tesseract_cmd() -> Optional[str]:
     """
     env_path = os.getenv('TESSERACT_CMD')
     if env_path and Path(env_path).exists():
-        logger.info(f"使用环境变量指定的 Tesseract 路径: {env_path}")
+        logger.info(f"Specifying the Tesseract path using environment variables: {env_path}")
         return env_path
     
     tesseract_in_path = shutil.which('tesseract')
     if tesseract_in_path:
-        logger.info(f"在系统 PATH 中找到 Tesseract: {tesseract_in_path}")
+        logger.info(f"Find Tesseract in system PATH: {tesseract_in_path}")
         return tesseract_in_path
     
     system = platform.system()
@@ -97,7 +97,38 @@ class OCRService:
         self.lang = lang
         logger.info(f"OCR service initialized, language: {lang}")
     
+    def extract_text_from_bytes(
+        self, 
+        image_bytes: bytes,
+        config: Optional[str] = None
+    ) -> str:
+        """
+        Extract text from uploaded image
+        
+        Args:
+            image_bytes: image bytes stream
+            config: Tesseract configuration arguments (optional)
+            
+        Returns:
+            Text Content
+        """
+        try:
+            from io import BytesIO
 
+            image = Image.open(BytesIO(image_bytes))
+            
+            text = pytesseract.image_to_string(
+                image,
+                lang=self.lang,
+                config=config or ''
+            )
+            
+            logger.info("Successfully identified image")
+            return text.strip()
+            
+        except Exception as e:
+            logger.error(f"OCR recognize failure: {str(e)}")
+            raise Exception(f"OCR recognize failure: {str(e)}")
 
     def extract_text_from_image(
         self, 
@@ -105,22 +136,22 @@ class OCRService:
         config: Optional[str] = None
     ) -> str:
         """
-        从图片中提取文字
-        
+        Extract text from local image file
+
         Args:
-            image_path: 图片文件路径
-            config: Tesseract 配置参数（可选）
+            image_path
+            config: Tesseract configuration arguments (optional)
             
         Returns:
-            提取的文本内容
+            Text content
             
         Raises:
-            FileNotFoundError: 图片文件不存在
-            Exception: OCR 识别失败
+            FileNotFoundError
+            Exception: OCR Failure
         """
         try:
             if not Path(image_path).exists():
-                raise FileNotFoundError(f"图片文件不存在: {image_path}")
+                raise FileNotFoundError(f"image file unexist: {image_path}")
             
             image = Image.open(image_path)
             
@@ -131,49 +162,14 @@ class OCRService:
                 config=config or ''
             )
             
-            logger.info(f"成功识别图片: {image_path}")
+            logger.info(f"Image successfully recognized: {image_path}")
             return text.strip()
             
         except FileNotFoundError:
             raise
         except Exception as e:
-            logger.error(f"OCR 识别失败: {str(e)}")
-            raise Exception(f"OCR 识别失败: {str(e)}")
-    
-    def extract_text_from_bytes(
-        self, 
-        image_bytes: bytes,
-        config: Optional[str] = None
-    ) -> str:
-        """
-        从字节流中提取文字（用于处理上传的文件）
-        
-        Args:
-            image_bytes: 图片字节流
-            config: Tesseract 配置参数（可选）
-            
-        Returns:
-            提取的文本内容
-        """
-        try:
-            from io import BytesIO
-            
-            # 从字节流创建图片对象
-            image = Image.open(BytesIO(image_bytes))
-            
-            # 执行 OCR 识别
-            text = pytesseract.image_to_string(
-                image,
-                lang=self.lang,
-                config=config or ''
-            )
-            
-            logger.info("成功识别上传的图片")
-            return text.strip()
-            
-        except Exception as e:
-            logger.error(f"OCR 识别失败: {str(e)}")
-            raise Exception(f"OCR 识别失败: {str(e)}")
+            logger.error(f"OCR recognize failed: {str(e)}")
+            raise Exception(f"OCR recognize failed: {str(e)}")
     
     def get_image_info(self, image_path: str) -> Dict[str, Any]:
         """
@@ -211,17 +207,14 @@ class OCRService:
     
     def is_tesseract_available(self) -> bool:
         """
-        检查 Tesseract 是否可用
-        
-        Returns:
-            True 如果可用，否则 False
+        Check Tesseract avaliability
         """
         try:
             version = pytesseract.get_tesseract_version()
-            logger.info(f"Tesseract 版本: {version}")
+            logger.info(f"Tesseract version: {version}")
             return True
         except Exception as e:
-            logger.error(f"Tesseract 不可用: {str(e)}")
+            logger.error(f"Tesseract is unavaliable: {str(e)}")
             return False
     
     def get_available_languages(self) -> List[str]:
