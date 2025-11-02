@@ -3,6 +3,7 @@ import { Routes, Route, Link, useLocation } from 'react-router-dom'
 import './App.css'
 import About from './pages/About'
 import Home from './pages/Home'
+import NotFound from './pages/NotFound'
 
 function App() {
   const location = useLocation()
@@ -12,7 +13,7 @@ function App() {
       <header className="app-header">
         <div className="header-content">
           <h1 className="app-title">Easy ICS</h1>
-          <p className="app-subtitle">简单易用的日历文件处理工具</p>
+          <p className="app-subtitle">Simple and easy-to-use calendar file processing tool</p>
         </div>
       </header>
 
@@ -20,11 +21,11 @@ function App() {
         <div className="nav-content">
           <Link to='/' className={`nav-link ${location.pathname === '/' ? 'active' : ''}`}>
             <span className="nav-icon">🏠</span>
-            首页
+            Home
           </Link>
           <Link to='/about' className={`nav-link ${location.pathname === '/about' ? 'active' : ''}`}>
             <span className="nav-icon">ℹ️</span>
-            关于
+            About
           </Link>
         </div>
       </nav>
@@ -33,6 +34,7 @@ function App() {
         <Routes>
           <Route path='/' element={<Home />} />
           <Route path='/about' element={<About />} />
+          <Route path='*' element={<NotFound />} />
         </Routes>
       </main>
 
