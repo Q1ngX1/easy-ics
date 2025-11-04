@@ -5,10 +5,11 @@
 ## 📋 功能特性
 
 - ✅ OCR 图像识别（Tesseract）
+- ✅ ICS 文件生成（核心功能已完成）
+- ✅ ICS 文件解析（核心功能已完成）
 - ✅ 跨平台支持（Windows / macOS / Linux）
 - ✅ RESTful API 接口
 - ⚠️ 文本解析（开发中）
-- ⚠️ ICS 文件生成（开发中）
 
 ## 🛠️ 技术栈
 
@@ -150,14 +151,89 @@ curl http://localhost:8000/api/ocr/health
 ### 3. 文本解析（开发中）
 
 ```bash
-POST /api/text/parse
+POST /api/upload/text
+Content-Type: application/json
+
+# curl 示例
+curl -X POST "http://localhost:8000/api/upload/text" \
+     -H "Content-Type: application/json" \
+     -d '{"text":"2025年10月26日下午2点开会"}'
 ```
 
-### 4. 生成 ICS 文件（开发中）
+### 4. 生成 ICS 文件 ✅
 
 ```bash
-POST /api/ics/generate
+POST /api/download_ics
+Content-Type: application/json
+
+# curl 示例
+curl -X POST "http://localhost:8000/api/download_ics" \
+     -H "Content-Type: application/json" \
+     -d '{
+       "events": [
+         {
+           "title": "项目会议",
+           "start_time": "2025-10-26T14:00:00",
+           "end_time": "2025-10-26T15:00:00",
+           "location": "会议室 A",
+           "description": "讨论项目进度"
+         }
+       ]
+     }' \
+     --output calendar.ics
 ```
+
+**响应**：生成的 ICS 文件（可直接导入日历应用）
+
+## 🎯 ICS 服务文档
+
+ICS Service 是 Easy ICS 的核心服务，负责日历事件与 ICS 文件格式的转换。
+
+### 功能清单
+
+- ✅ **ICS 文件生成** - 将事件对象转换为标准 ICS 格式
+- ✅ **ICS 文件解析** - 将 ICS 文件解析为事件对象
+- ✅ **时间格式转换** - 支持多种时间格式
+- ✅ **特殊字符转义** - 自动处理特殊字符
+- ✅ **优先级管理** - 支持事件优先级设置
+- ✅ **提醒功能** - 支持配置事件提醒
+- ✅ **完整的单元测试** - 测试覆盖率高
+
+### 快速示例
+
+```python
+from app.services.ics_service import ICSService
+from app.models.event import Event, EventPriority
+from datetime import datetime, timedelta
+
+# 创建事件
+event = Event(
+    title="项目会议",
+    start_time=datetime(2025, 10, 26, 14, 0),
+    end_time=datetime(2025, 10, 26, 15, 0),
+    location="会议室 A",
+    description="讨论项目进度",
+    priority=EventPriority.HIGH,
+    reminder_minutes=30
+)
+
+# 生成 ICS 文件
+service = ICSService()
+ics_content = service.generate_ics([event])
+
+# 保存文件
+with open("calendar.ics", "w", encoding="utf-8") as f:
+    f.write(ics_content)
+
+# 或者解析已有的 ICS 文件
+with open("existing.ics", "r", encoding="utf-8") as f:
+    events = service.parse_ics(f.read())
+```
+
+### 详细文档
+
+- 📖 [ICS Service 完整文档](./docs/ICS_SERVICE.md) - 深入了解所有功能和高级特性
+- 📚 [快速参考指南](./docs/ICS_SERVICE_QUICK_REFERENCE.md) - 常用方法速查表
 
 ## 🧪 测试
 
@@ -191,18 +267,26 @@ backend/
 ├── pyproject.toml          # 项目配置
 ├── .env.example            # 环境变量示例
 ├── README.md              # 本文档
+├── docs/
+│   ├── ICS_SERVICE.md                    # ICS 服务详细文档 ✅
+│   └── ICS_SERVICE_QUICK_REFERENCE.md    # 快速参考 ✅
 └── app/                   # 应用主目录
     ├── __init__.py
     ├── main.py           # 应用入口
     ├── api.py            # API 路由
     ├── models/           # 数据模型
     │   ├── __init__.py
-    │   └── event.py
+    │   └── event.py      # 事件模型 ✅
     └── services/         # 业务服务
         ├── __init__.py
         ├── ocr_service.py      # OCR 识别 ✅
-        ├── parser_service.py   # 文本解析 ⚠️
-        └── ics_service.py      # ICS 生成 ⚠️
+        ├── parser_service.py   # 文本解析 ⚠️ 开发中
+        └── ics_service.py      # ICS 生成 ✅
+└── tests/
+    ├── __init__.py
+    ├── ocr_test.py
+    ├── ics_service_test.py     # ICS 服务单元测试 ✅
+    └── image/
 ```
 
 ## 🐛 常见问题
@@ -246,10 +330,11 @@ TesseractError: Failed to load language 'chi_sim'
 - [x] OCR 图像识别服务
 - [x] API 路由框架
 - [x] 跨平台支持
-- [ ] 文本解析服务
-- [ ] ICS 文件生成服务
-- [ ] 事件数据模型
-- [ ] 单元测试
+- [x] 事件数据模型 ✅
+- [x] ICS 文件生成服务 ✅
+- [x] ICS 文件解析服务 ✅
+- [x] ICS 服务单元测试 ✅
+- [ ] 文本解析服务（开发中）
 - [ ] 集成测试
 - [ ] Docker 部署
 

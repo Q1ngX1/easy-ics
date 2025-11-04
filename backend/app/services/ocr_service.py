@@ -154,7 +154,6 @@ class OCRService:
                 raise FileNotFoundError(f"image file unexist: {image_path}")
             
             image = Image.open(image_path)
-            
 
             text = pytesseract.image_to_string(
                 image, 
@@ -175,6 +174,8 @@ class OCRService:
         """
         获取图片信息和 OCR 识别数据
         
+
+
         Args:
             image_path: 图片文件路径
             
@@ -187,7 +188,6 @@ class OCRService:
             
             image = Image.open(image_path)
             
-            # 获取详细的 OCR 数据
             data = pytesseract.image_to_data(
                 image,
                 lang=self.lang,
@@ -202,8 +202,8 @@ class OCRService:
             }
             
         except Exception as e:
-            logger.error(f"获取图片信息失败: {str(e)}")
-            raise Exception(f"获取图片信息失败: {str(e)}")
+            logger.error(f"Unable to get image: {str(e)}")
+            raise Exception(f"Unable to get image: {str(e)}")
     
     def is_tesseract_available(self) -> bool:
         """

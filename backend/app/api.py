@@ -25,6 +25,10 @@ router = APIRouter()
 
 # ===== API =====
 
+@router.post("api/upload/timezone")
+def set_timezone(timezone: dict):
+    pass
+
 @router.post("/api/upload/img")
 async def upload_img(
     file: UploadFile = File(...),
@@ -162,6 +166,73 @@ async def upload_text(
         )
     
 
+@router.post("/api/download_ics")
+async def download_ics(request: ICSDownloadRequest):
+    """
+    Args:
+        request
+        
+    Returns:
+        ICS file stream
+    
+    """
+    try:
+        if not request.events or len(request.events) == 0:
+            raise HTTPException(status_code=400, detail="事件列表不能为空")
+        
+        # TODO: 实现 ICS 生成逻辑
+        from app.services.ics_service import ICSService
+        from app.models.event import Event
+        
+        ics_service = ICSService()
+        
+        events = []
+        for event_data in request.events:
+            try:
+                start_time = datetime.fromisoformat(event_data.start_time)
+                end_time = datetime.fromisoformat(event_data.end_time)
+                
+                event = Event(
+                    title=event_data.title,
+                    start_time=start_time,
+                    end_time=end_time,
+                    location=event_data.location,
+                    description=event_data.description
+                )
+                events.append(event)
+            except ValueError as e:
+                raise HTTPException(
+                    status_code=400,
+                    detail=f"time format incorrect: {str(e)}"
+                )
+        
+        ics_content = ics_service.generate_ics(events)
+        
+        logger.info(f"ICS 文件生成成功: {len(events)} 个事件")
+        
+        return StreamingResponse(
+            iter([ics_content]),
+            media_type="text/calendar; charset=utf-8",
+            headers={
+                "Content-Disposition": "attachment; filename=calendar.ics"
+            }
+        )
+        
+    except NotImplementedError:
+        raise HTTPException(
+            status_code=501,
+            detail="ICS 生成功能正在开发中"
+        )
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"ICS 生成失败: {str(e)}", exc_info=True)
+        raise HTTPException(
+            status_code=500,
+            detail=f"ICS 生成失败: {str(e)}"
+        )
+
+
 @router.get("/api/check_health")
 async def check_health():
     """
@@ -198,69 +269,3 @@ async def check_health():
         )
 
 
-@router.post("/api/download_ics")
-async def download_ics(request: ICSDownloadRequest):
-    """
-    Args:
-        request
-        
-    Returns:
-        ICS file stream
-    
-    """
-    try:
-        if not request.events or len(request.events) == 0:
-            raise HTTPException(status_code=400, detail="事件列表不能为空")
-        
-        # TODO: 实现 ICS 生成逻辑
-        from app.services.ics_service import ICSService
-        from app.models.event import Event
-        
-        ics_service = ICSService()
-        
-        # 将请求数据转换为 Event 对象
-        events = []
-        for event_data in request.events:
-            try:
-                start_time = datetime.fromisoformat(event_data.start_time)
-                end_time = datetime.fromisoformat(event_data.end_time)
-                
-                event = Event(
-                    title=event_data.title,
-                    start_time=start_time,
-                    end_time=end_time,
-                    location=event_data.location,
-                    description=event_data.description
-                )
-                events.append(event)
-            except ValueError as e:
-                raise HTTPException(
-                    status_code=400,
-                    detail=f"事件时间格式错误: {str(e)}"
-                )
-        
-        ics_content = ics_service.generate_ics(events)
-        
-        logger.info(f"ICS 文件生成成功: {len(events)} 个事件")
-        
-        return StreamingResponse(
-            iter([ics_content]),
-            media_type="text/calendar; charset=utf-8",
-            headers={
-                "Content-Disposition": "attachment; filename=calendar.ics"
-            }
-        )
-        
-    except NotImplementedError:
-        raise HTTPException(
-            status_code=501,
-            detail="ICS 生成功能正在开发中"
-        )
-    except HTTPException:
-        raise
-    except Exception as e:
-        logger.error(f"ICS 生成失败: {str(e)}", exc_info=True)
-        raise HTTPException(
-            status_code=500,
-            detail=f"ICS 生成失败: {str(e)}"
-        )

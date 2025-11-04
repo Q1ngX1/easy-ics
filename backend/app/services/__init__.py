@@ -15,6 +15,6 @@ from .ics_service import ICSService
 __all__ = [
     'OCRService',
     'get_ocr_service',
-    'ParserService',
+    #'ParserService',
     'ICSService',
 ]
