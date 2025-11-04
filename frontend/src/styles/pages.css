@@ -468,6 +468,7 @@
   border-radius: 8px;
   font-family: inherit;
   color: #333;
+  background-color: #ffffff;
   resize: vertical;
   transition: all 0.3s ease;
 }
