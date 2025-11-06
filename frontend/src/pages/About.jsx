@@ -31,7 +31,6 @@ export default function About(){
                     <li>🔄 <strong>Data Conversion</strong> - Support for conversion between multiple calendar formats</li>
                 </ul>
             </div>
-
             <div className="about-section">
                 <h2>Tech Stack</h2>
                 <div className="tech-stack">
@@ -49,12 +48,12 @@ export default function About(){
                 </p>
                 <div className="contact-info">
                     <p style={{ cursor: 'pointer' }} onClick={() => handleCopyEmail('zgeng5@illinois.edu')} className="copy-email">
-                        📧 Email: zgeng5@illinois.edu {copiedEmail === 'zgeng5@illinois.edu' && <span className="copy-hint"> ✓ Copied</span>}
+                        Email: zgeng5@illinois.edu {copiedEmail === 'zgeng5@illinois.edu' && <span className="copy-hint"> ✓ Copied</span>}
                     </p>
                     <p style={{ cursor: 'pointer' }} onClick={() => handleCopyEmail('zanshuhan2029@ucla.edu')} className="copy-email">
-                        📧 Email: zanshuhan2029@ucla.edu {copiedEmail === 'zanshuhan2029@ucla.edu' && <span className="copy-hint"> ✓ Copied</span>}
+                        Email: zanshuhan2029@ucla.edu {copiedEmail === 'zanshuhan2029@ucla.edu' && <span className="copy-hint"> ✓ Copied</span>}
                     </p>
-                    <p>🐙 GitHub: <a href="#" className="link">github.com/easyics</a></p>
+                    <p>  GitHub: <a href="https://github.com/Q1ngX1/easy-ics" className="link">github.com/easyics</a></p>
                 </div>
             </div>
         </div>

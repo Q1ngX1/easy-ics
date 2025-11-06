@@ -16,7 +16,7 @@
 
   /* 颜色变量 */
   --primary-color: #667eea;
-  --secondary-color: #764ba2;
+  --secondary-color: #4ba296;
   --text-color: #333;
   --text-light: #666;
   --border-color: #e0e0e0;
@@ -63,26 +63,3 @@ a:hover {
 button {
   font-family: inherit;
 }
-
-/* 滚动条样式 */
-::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
-}
-
-::-webkit-scrollbar-track {
-  background: #f1f1f1;
-}
-
-::-webkit-scrollbar-thumb {
-  background: #667eea;
-  border-radius: 4px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: #764ba2;
-}
-
-
-
-

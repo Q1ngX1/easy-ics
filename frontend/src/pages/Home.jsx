@@ -152,7 +152,7 @@ export default function Home() {
                         ) : (
                             <>
                                 <span className="drag-drop-icon">📁</span>
-                                <span className="drag-drop-text">{hasText ? 'Text input already selected' : 'Drag image here, paste (Ctrl+V) or click to select'}</span>
+                                <span className="drag-drop-text">{hasText ? 'Text input already selected' : 'Drag image here, paste (Ctrl+V/Command+V) or click to select'}</span>
                             </>
                         )}
                     </label>
@@ -184,7 +184,7 @@ export default function Home() {
 
                 {/* Start button */}
                 <div className="form-row button-row">
-                    <button type="submit" className="cta-button" disabled={!hasImage && !hasText}>Start</button>
+                    <button type="submit" className="cta-button" disabled={!hasImage && !hasText}>Convert</button>
                 </div>
             </form>
         </div>

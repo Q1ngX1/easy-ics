@@ -20,11 +20,9 @@ function App() {
       <nav className="app-nav">
         <div className="nav-content">
           <Link to='/' className={`nav-link ${location.pathname === '/' ? 'active' : ''}`}>
-            <span className="nav-icon">🏠</span>
             Home
           </Link>
           <Link to='/about' className={`nav-link ${location.pathname === '/about' ? 'active' : ''}`}>
-            <span className="nav-icon">ℹ️</span>
             About
           </Link>
         </div>

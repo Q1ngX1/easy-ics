@@ -50,10 +50,11 @@
 .nav-content {
   max-width: 1280px;
   margin: 0 auto;
-  padding: 0 2rem;
+  padding: 0 3rem;
   display: flex;
   gap: 2rem;
   align-items: center;
+  justify-content: center;
 }
 
 .nav-link {
@@ -65,19 +66,16 @@
   color: #333;
   font-weight: 500;
   transition: all 0.3s ease;
-  border-radius: 8px;
   border-bottom: 3px solid transparent;
 }
 
 .nav-link:hover {
   color: #667eea;
   background-color: #f0f0f0;
-  transform: translateY(-2px);
 }
 
 .nav-link.active {
   color: #667eea;
-  border-bottom-color: #667eea;
   background-color: #f0f0f0;
 }
 
@@ -90,7 +88,7 @@
   flex: 1;
   max-width: 1280px;
   margin: 0 auto;
-  padding: 3rem 2rem;
+  padding: 2rem 2rem;
   width: 100%;
 }
 
