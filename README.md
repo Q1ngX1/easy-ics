@@ -2,211 +2,211 @@
 
 [English](README.md) | [中文](README.zh-CN.md)
 
-将图片、文本转换为日历文件的智能工具
+Intelligent tool to convert images and text into calendar files
 
-## ✨ 核心功能
+## ✨ Core Features
 
-- 🖼️ **OCR 图像识别** - 从图片中识别日历信息
-- 📝 **文本解析** - 从自然语言文本提取事件
-- 📅 **ICS 生成** - 生成标准日历文件格式
-- 🔄 **完整流程** - 一键从图片/文本生成日历
+- 🖼️ **OCR Image Recognition** - Extract calendar information from images
+- 📝 **Text Parsing** - Extract events from natural language text
+- 📅 **ICS Generation** - Generate standard calendar file format
+- 🔄 **Complete Workflow** - Generate calendars from images/text in one click
 
-## 🚀 快速开始
+## 🚀 Quick Start
 
-### 后端服务启动
+### Backend Service Setup
 
 ```bash
-# 进入后端目录
+# Navigate to backend directory
 cd backend
 
-# 启动开发服务器
+# Start development server
 uvicorn app.main:app --reload
 
-# 访问 API 文档
-# 打开浏览器：http://localhost:8000/docs
+# Access API documentation
+# Open browser: http://localhost:8000/docs
 ```
 
-**详细指南：** 📖 [后端启动指南](./backend/docs/BACKEND_STARTUP.md)
+**Detailed Guide:** 📖 [Backend Startup Guide](./backend/docs/BACKEND_STARTUP.md)
 
-### 前端开发服务启动
+### Frontend Development Server Setup
 
 ```bash
-# 进入前端目录
+# Navigate to frontend directory
 cd frontend
 
-# 安装依赖
+# Install dependencies
 npm install
 
-# 启动开发服务器
+# Start development server
 npm run dev
 
-# 访问应用
-# 打开浏览器：http://localhost:5173
+# Access the app
+# Open browser: http://localhost:5173
 ```
 
-## 📁 项目结构
+## 📁 Project Structure
 
 ```
 easy-ics/
-├── backend/                    # Python FastAPI 后端
+├── backend/                    # Python FastAPI backend
 │   ├── app/
-│   │   ├── main.py            # 应用入口
-│   │   ├── api.py             # API 路由
-│   │   ├── models/            # 数据模型
-│   │   └── services/          # 业务逻辑
-│   ├── tests/                 # 单元测试
-│   ├── docs/                  # 文档
-│   ├── pyproject.toml         # 项目配置
-│   └── backend_startup.py     # 启动脚本
-├── frontend/                   # React 前端
+│   │   ├── main.py            # Application entry point
+│   │   ├── api.py             # API routes
+│   │   ├── models/            # Data models
+│   │   └── services/          # Business logic
+│   ├── tests/                 # Unit tests
+│   ├── docs/                  # Documentation
+│   ├── pyproject.toml         # Project configuration
+│   └── backend_startup.py     # Startup script
+├── frontend/                   # React frontend
 │   ├── src/
-│   │   ├── pages/             # 页面
-│   │   ├── components/        # 组件
-│   │   └── App.jsx            # 主应用
+│   │   ├── pages/             # Pages
+│   │   ├── components/        # Components
+│   │   └── App.jsx            # Main application
 │   ├── package.json
 │   └── vite.config.js
-└── docs/                       # 项目文档
+└── docs/                       # Project documentation
 ```
 
-## 🛠️ 技术栈
+## 🛠️ Tech Stack
 
-### 后端
-- **FastAPI** - 现代 Web 框架
-- **Pydantic** - 数据验证
-- **Tesseract OCR** - 图像识别
-- **Python 3.11+** - 编程语言
+### Backend
+- **FastAPI** - Modern web framework
+- **Pydantic** - Data validation
+- **Tesseract OCR** - Image recognition
+- **Python 3.11+** - Programming language
 
-### 前端
-- **React** - UI 框架
-- **Vite** - 构建工具
-- **CSS3** - 样式
+### Frontend
+- **React** - UI framework
+- **Vite** - Build tool
+- **CSS3** - Styling
 
-## 📚 文档
+## 📚 Documentation
 
-| 文档 | 说明 |
-|------|------|
-| [后端启动指南](./backend/docs/BACKEND_STARTUP.md) | 如何启动后端服务和使用启动脚本 |
-| [后端 README](./backend/README.md) | 后端项目详细说明 |
-| [ICS 服务文档](./backend/docs/ICS_SERVICE.md) | ICS 文件生成和解析完整文档 |
-| [ICS 快速参考](./backend/docs/ICS_SERVICE_QUICK_REFERENCE.md) | ICS 服务常用方法速查 |
-| [前端 README](./frontend/README.md) | 前端项目说明 |
+| Document | Description |
+|----------|-------------|
+| [Backend Startup Guide](./backend/docs/BACKEND_STARTUP.md) | How to start backend service and use startup script |
+| [Backend README](./backend/README.md) | Detailed backend project documentation |
+| [ICS Service Documentation](./backend/docs/ICS_SERVICE.md) | Complete ICS file generation and parsing documentation |
+| [ICS Quick Reference](./backend/docs/ICS_SERVICE_QUICK_REFERENCE.md) | ICS service common methods quick reference |
+| [Frontend README](./frontend/README.md) | Frontend project documentation |
 
-## 🔧 环境要求
+## 🔧 Requirements
 
-### 后端
+### Backend
 - Python >= 3.11
-- pip 或 uv 包管理器
-- Tesseract OCR（可选，用于图片识别）
+- pip or uv package manager
+- Tesseract OCR (optional, for image recognition)
 
-### 前端
+### Frontend
 - Node.js >= 18
-- npm 或 yarn
+- npm or yarn
 
-## ⚙️ 安装依赖
+## ⚙️ Install Dependencies
 
-### 后端
+### Backend
 
 ```bash
 cd backend
 
-# 方式 1: 使用 pip
+# Option 1: Using pip
 pip install -e .
 
-# 方式 2: 使用 uv
+# Option 2: Using uv
 uv sync
 ```
 
-### 前端
+### Frontend
 
 ```bash
 cd frontend
 npm install
 ```
 
-## 📡 API 端点
+## 📡 API Endpoints
 
-启动后端服务后，访问 http://localhost:8000/docs 查看完整的交互式 API 文档。
+After starting the backend service, visit http://localhost:8000/docs to view the complete interactive API documentation.
 
-**主要端点：**
-- `GET /api/check_health` - 健康检查
-- `POST /api/upload/img` - 上传图片进行 OCR 识别
-- `POST /api/upload/text` - 解析文本提取事件
-- `POST /api/download_ics` - 生成 ICS 文件
+**Main Endpoints:**
+- `GET /api/check_health` - Health check
+- `POST /api/upload/img` - Upload image for OCR recognition
+- `POST /api/upload/text` - Parse text to extract events
+- `POST /api/download_ics` - Generate ICS file
 
-## 🧪 测试
+## 🧪 Testing
 
-### 后端测试
+### Backend Tests
 
 ```bash
 cd backend
 
-# 运行所有测试
+# Run all tests
 pytest tests/ -v
 
-# 运行特定测试类
+# Run specific test class
 pytest tests/ics_service_test.py -v
 
-# 生成覆盖率报告
+# Generate coverage report
 pytest tests/ --cov=app --cov-report=html
 ```
 
-### 前端测试
+### Frontend Tests
 
 ```bash
 cd frontend
 
-# 运行测试
+# Run tests
 npm run test
 ```
 
-## 🐛 常见问题
+## 🐛 FAQ
 
-**Q: 如何启动开发环境？**
+**Q: How to start the development environment?**
 
-A: 运行以下命令：
+A: Run the following commands:
 ```bash
-# 后端
+# Backend
 cd backend && uvicorn app.main:app --reload
 
-# 前端（新终端）
+# Frontend (new terminal)
 cd frontend && npm run dev
 ```
 
-**Q: 如何测试 API？**
+**Q: How to test the API?**
 
-A: 启动后端后，访问 http://localhost:8000/docs 使用 Swagger UI 测试
+A: After starting the backend, visit http://localhost:8000/docs and use Swagger UI to test
 
-**Q: Tesseract 如何安装？**
+**Q: How to install Tesseract?**
 
-A: 参考 [后端 README](./backend/README.md#-安装依赖) 中的安装指南
+A: Refer to the installation guide in [Backend README](./backend/README.md#-install-dependencies)
 
-## 📖 使用示例
+## 📖 Usage Examples
 
-### 从文本生成 ICS 文件
+### Generate ICS File from Text
 
 ```python
 from app.services.ics_service import ICSService
 from app.models.event import Event
 from datetime import datetime
 
-# 创建事件
+# Create event
 event = Event(
-    title="项目会议",
+    title="Project Meeting",
     start_time=datetime(2025, 10, 26, 14, 0),
     end_time=datetime(2025, 10, 26, 15, 0),
-    location="会议室 A"
+    location="Meeting Room A"
 )
 
-# 生成 ICS
+# Generate ICS
 service = ICSService()
 ics_content = service.generate_ics([event])
 
-# 保存文件
+# Save file
 with open("calendar.ics", "w") as f:
     f.write(ics_content)
 ```
 
-### 使用 API 生成日历
+### Generate Calendar Using API
 
 ```bash
 curl -X POST "http://localhost:8000/api/download_ics" \
@@ -214,7 +214,7 @@ curl -X POST "http://localhost:8000/api/download_ics" \
   -d '{
     "events": [
       {
-        "title": "项目会议",
+        "title": "Project Meeting",
         "start_time": "2025-10-26T14:00:00",
         "end_time": "2025-10-26T15:00:00"
       }
@@ -223,53 +223,53 @@ curl -X POST "http://localhost:8000/api/download_ics" \
   --output calendar.ics
 ```
 
-## 🚀 部署
+## 🚀 Deployment
 
-### Docker 部署（计划中）
+### Docker Deployment (Coming Soon)
 
 ```bash
 docker-compose up
 ```
 
-### 生产部署
+### Production Deployment
 
-后端：
+Backend:
 ```bash
 uvicorn app.main:app --host 0.0.0.0 --port 8000
 ```
 
-前端：
+Frontend:
 ```bash
 npm run build
-# 将 dist 目录部署到静态服务器
+# Deploy dist directory to static server
 ```
 
-## 📝 开发计划
+## 📝 Development Roadmap
 
-- [x] 项目结构搭建
-- [x] 后端框架初始化
-- [x] OCR 服务实现
-- [x] ICS 生成服务
-- [x] ICS 解析服务
-- [x] 基础 API 路由
-- [x] 前端页面优化
-- [ ] 文本解析服务
-- [ ] 完整的集成测试
-- [ ] Docker 部署配置
-- [ ] 生产环境优化
+- [x] Project structure setup
+- [x] Backend framework initialization
+- [x] OCR service implementation
+- [x] ICS generation service
+- [x] ICS parsing service
+- [x] Basic API routes
+- [x] Frontend page optimization
+- [ ] Text parsing service
+- [ ] Complete integration tests
+- [ ] Docker deployment configuration
+- [ ] Production environment optimization
 
-## 🤝 贡献
+## 🤝 Contributing
 
-欢迎提交 Issue 和 Pull Request！
+Issues and Pull Requests are welcome!
 
-## 📄 许可证
+## 📄 License
 
-MIT License - 详见 LICENSE 文件
+MIT License - See LICENSE file for details
 
-## 💬 联系方式
+## 💬 Contact
 
-- GitHub Issues: [项目问题追踪](../../issues)
-- 项目主页: [GitHub](https://github.com/Q1ngX1/easy-ics)
+- GitHub Issues: [Project Issue Tracking](../../issues)
+- Project Homepage: [GitHub](https://github.com/Q1ngX1/easy-ics)
 
 ---
 

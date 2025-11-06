@@ -1,11 +1,15 @@
 import { useState, useEffect } from 'react'
 import '../styles/pages.css'
+import { uploadImage, uploadText, downloadICS, triggerDownload } from '../services/apiService'
 
 export default function Home() {
     const [image, setImage] = useState(null)
     const [text, setText] = useState('')
     const [dragActive, setDragActive] = useState(false)
     const [contextMenu, setContextMenu] = useState(null) // {x, y}
+    const [loading, setLoading] = useState(false)
+    const [result, setResult] = useState(null) // parsed events
+    const [error, setError] = useState(null)
 
     const handleImageChange = (e) => {
         const file = e.target.files?.[0]
@@ -40,11 +44,74 @@ export default function Home() {
         }
     }
 
-    const handleStart = (e) => {
+    const handleStart = async (e) => {
         e.preventDefault()
-        // Placeholder: will be replaced with backend API call
-        console.log('start', { image, text })
-        alert('Processing started (in development)')
+        setError(null)
+        setResult(null)
+        setLoading(true)
+
+        try {
+            let events = []
+
+            // Upload image and extract text via OCR
+            if (image) {
+                const uploadRes = await uploadImage(image)
+                if (!uploadRes.success) {
+                    throw new Error(uploadRes.message || 'Image upload failed')
+                }
+                // If text extracted, parse it to events
+                if (uploadRes.text && uploadRes.text.trim().length > 0) {
+                    const parseRes = await uploadText(uploadRes.text)
+                    if (!parseRes.success) {
+                        throw new Error(parseRes.message || 'Text parsing failed')
+                    }
+                    events = parseRes.events || []
+                } else {
+                    setError('No text detected in the image. Please try a clearer image.')
+                    setLoading(false)
+                    return
+                }
+            }
+            // Parse text directly
+            else if (text) {
+                const parseRes = await uploadText(text)
+                if (!parseRes.success) {
+                    throw new Error(parseRes.message || 'Text parsing failed')
+                }
+                events = parseRes.events || []
+            } else {
+                throw new Error('No input provided')
+            }
+
+            if (!events || events.length === 0) {
+                setError('No events were parsed from the input. Please try different content.')
+                setLoading(false)
+                return
+            }
+
+            setResult(events)
+        } catch (err) {
+            console.error('Processing error:', err)
+            setError(err.message || 'An error occurred during processing')
+        } finally {
+            setLoading(false)
+        }
+    }
+
+    const handleDownloadICS = async () => {
+        if (!result || result.length === 0) return
+
+        setLoading(true)
+        setError(null)
+        try {
+            const icsBlob = await downloadICS(result)
+            triggerDownload(icsBlob, 'calendar.ics')
+        } catch (err) {
+            console.error('Download error:', err)
+            setError(err.message || 'Failed to download ICS file')
+        } finally {
+            setLoading(false)
+        }
     }
 
     const hasImage = !!image
@@ -126,6 +193,50 @@ export default function Home() {
         <div className="page-content home-form">
             <h1>Get Started</h1>
 
+            {/* Error message */}
+            {error && (
+                <div className="message-box error-box">
+                    <span className="message-icon">❌</span>
+                    <p>{error}</p>
+                    <button 
+                        type="button" 
+                        className="message-close" 
+                        onClick={() => setError(null)}
+                    >
+                        ✕
+                    </button>
+                </div>
+            )}
+
+            {/* Success message with result preview and download */}
+            {result && result.length > 0 && (
+                <div className="message-box success-box">
+                    <span className="message-icon">✅</span>
+                    <div className="result-content">
+                        <p>Successfully parsed <strong>{result.length}</strong> event(s)!</p>
+                        <button 
+                            type="button" 
+                            className="cta-button secondary" 
+                            onClick={handleDownloadICS}
+                            disabled={loading}
+                        >
+                            {loading ? 'Downloading...' : '⬇ Download ICS'}
+                        </button>
+                    </div>
+                    <button 
+                        type="button" 
+                        className="message-close" 
+                        onClick={() => {
+                            setResult(null)
+                            setImage(null)
+                            setText('')
+                        }}
+                    >
+                        ✕
+                    </button>
+                </div>
+            )}
+
             <form onSubmit={handleStart} className="simple-form">
                 {/* Image drag and drop area */}
                 <div
@@ -142,7 +253,7 @@ export default function Home() {
                         accept="image/*"
                         onChange={handleImageChange}
                         className="file-input"
-                        disabled={hasText}
+                        disabled={hasText || loading}
                     />
                     <label htmlFor="image-input" className="drag-drop-label">
                         {image ? (
@@ -178,13 +289,19 @@ export default function Home() {
                         placeholder="Enter the text you want to recognize, dates, or any related information..."
                         className={`text-input ${hasImage ? 'disabled' : ''}`}
                         rows="4"
-                        disabled={hasImage}
+                        disabled={hasImage || loading}
                     />
                 </label>
 
                 {/* Start button */}
                 <div className="form-row button-row">
-                    <button type="submit" className="cta-button" disabled={!hasImage && !hasText}>Convert</button>
+                    <button 
+                        type="submit" 
+                        className="cta-button" 
+                        disabled={(!hasImage && !hasText) || loading}
+                    >
+                        {loading ? '⏳ Processing...' : 'Convert'}
+                    </button>
                 </div>
             </form>
         </div>
