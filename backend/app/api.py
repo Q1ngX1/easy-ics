@@ -128,26 +128,25 @@ async def upload_text(
     
     """
     try:
-        # 文本检查
         if not text or text.strip() == "":
             raise HTTPException(
                 status_code=400,
                 detail="Content cannot be empty"
             )
         
-        # 调用 parser_service 进行文本解析
         from app.services.parser_service import ParserService
         
         parser = ParserService()
-        events = parser.parse_text_to_events(text)
+        event = parser.parse(text)
         
-        logger.info(f"文本解析成功: 识别到 {len(events)} 个事件")
+        logger.info(f"Parsing success")
         
         return {
             "success": True,
-            "events": [event.to_dict() for event in events],
-            "count": len(events),
-            "message": "文本解析成功"
+            "event": event.to_dict,
+            #"events": [event.to_dict() for event in events],
+            #"count": len(events),
+            "message": "Success"
         }
         
     except HTTPException:

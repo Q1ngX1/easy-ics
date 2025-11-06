@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """
 easy-ics 后端启动检查和运行脚本
+easy-ics backend startup script
 
 用法:
     python backend_startup.py              # 显示启动信息

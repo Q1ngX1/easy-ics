@@ -1,6 +1,5 @@
 """
-事件模型定义
-包含业务模型和 Pydantic 数据验证模型
+Event model definition
 """
 
 from datetime import datetime
@@ -8,19 +7,12 @@ from typing import Optional, List
 from pydantic import BaseModel, Field
 from enum import Enum
 
-
-# ===== 业务模型 =====
-
 class EventPriority(Enum):
-    """事件优先级"""
-    LOW = "低"
-    MEDIUM = "中"
-    HIGH = "高"
-
+    LOW = "low"
+    MEDIUM = "medium"
+    HIGH = "high"
 
 class Event:
-    """日程事件业务模型"""
-    
     def __init__(
         self,
         title: str,
@@ -40,12 +32,10 @@ class Event:
         self.reminder_minutes = reminder_minutes
     
     def duration_hours(self) -> float:
-        """计算事件持续时间(小时)"""
         delta = self.end_time - self.start_time
         return delta.total_seconds() / 3600
     
     def is_all_day(self) -> bool:
-        """判断是否为全天事件"""
         return (
             self.start_time.hour == 0 and 
             self.start_time.minute == 0 and
@@ -54,7 +44,6 @@ class Event:
         )
     
     def to_dict(self) -> dict:
-        """转换为字典"""
         return {
             "title": self.title,
             "start_time": self.start_time.isoformat(),
@@ -70,7 +59,7 @@ class Event:
         return f"Event(title='{self.title}', start={self.start_time})"
 
 
-# ===== Pydantic 数据验证模型 (API 用) =====
+# ===== Pydantic Data Validation Model(Use for API) =====
 
 class EventData(BaseModel):
     """

@@ -173,9 +173,6 @@ class OCRService:
     def get_image_info(self, image_path: str) -> Dict[str, Any]:
         """
         获取图片信息和 OCR 识别数据
-        
-
-
         Args:
             image_path: 图片文件路径
             
