@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom'
 import '../styles/pages.css'
+import '../styles/404.css'
 
 export default function NotFound() {
     return (

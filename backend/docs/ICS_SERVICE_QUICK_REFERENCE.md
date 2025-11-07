@@ -149,29 +149,29 @@ event_time = now + timedelta(hours=2)
 
 ### 错误 1: 事件列表为空
 ```python
-# ❌ 错误
+# \u2718 错误
 service.generate_ics([])
 
-# ✅ 正确
+# \u2713 正确
 service.generate_ics([event1, event2])
 ```
 
 ### 错误 2: 时间格式不正确
 ```python
-# ❌ 错误
+# \u2718 错误
 Event(..., start_time="2025-10-26 14:00:00")
 
-# ✅ 正确
+# \u2713 正确
 Event(..., start_time=datetime(2025, 10, 26, 14, 0))
 ```
 
 ### 错误 3: 结束时间早于开始时间
 ```python
-# ❌ 错误
+# \u2718 错误
 start_time=datetime(2025, 10, 26, 15, 0)
 end_time=datetime(2025, 10, 26, 14, 0)
 
-# ✅ 正确
+# \u2713 正确
 start_time=datetime(2025, 10, 26, 14, 0)
 end_time=datetime(2025, 10, 26, 15, 0)
 ```

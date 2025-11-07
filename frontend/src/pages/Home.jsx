@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef} from 'react'
 import '../styles/pages.css'
 import { uploadImage, uploadText, downloadICS, triggerDownload } from '../services/apiService'
 
@@ -10,12 +10,12 @@ export default function Home() {
     const [loading, setLoading] = useState(false)
     const [result, setResult] = useState(null) // parsed events
     const [error, setError] = useState(null)
+    const fileInputRef = useRef(null)
 
     const handleImageChange = (e) => {
         const file = e.target.files?.[0]
         if (file && file.type.startsWith('image/')) {
             setImage(file)
-            // clear text when an image is selected to enforce one-of-two input rule
             setText('')
         }
     }
@@ -44,6 +44,16 @@ export default function Home() {
         }
     }
 
+    const handleClear = (e) => {
+        setError(null)
+        setImage(null)
+        setText('')
+        setResult(null)
+        if (fileInputRef.current) {
+            fileInputRef.current.value = ''
+        }
+    }
+
     const handleStart = async (e) => {
         e.preventDefault()
         setError(null)
@@ -52,7 +62,6 @@ export default function Home() {
 
         try {
             let events = []
-
             // Upload image and extract text via OCR
             if (image) {
                 const uploadRes = await uploadImage(image)
@@ -196,7 +205,7 @@ export default function Home() {
             {/* Error message */}
             {error && (
                 <div className="message-box error-box">
-                    <span className="message-icon">❌</span>
+                    <span className="message-icon">✘</span>
                     <p>{error}</p>
                     <button 
                         type="button" 
@@ -211,7 +220,7 @@ export default function Home() {
             {/* Success message with result preview and download */}
             {result && result.length > 0 && (
                 <div className="message-box success-box">
-                    <span className="message-icon">✅</span>
+                    <span className="message-icon">\u2713</span>
                     <div className="result-content">
                         <p>Successfully parsed <strong>{result.length}</strong> event(s)!</p>
                         <button 
@@ -248,6 +257,7 @@ export default function Home() {
                     onContextMenu={handleContextMenu}
                 >
                     <input
+                        ref={fileInputRef}
                         type="file"
                         id="image-input"
                         accept="image/*"
@@ -293,16 +303,26 @@ export default function Home() {
                     />
                 </label>
 
-                {/* Start button */}
+                {/* Start and Clear button */}
                 <div className="form-row button-row">
                     <button 
                         type="submit" 
                         className="cta-button" 
                         disabled={(!hasImage && !hasText) || loading}
                     >
-                        {loading ? '⏳ Processing...' : 'Convert'}
+                        {loading ? 'Processing...' : 'Convert'}
+                    </button>
+                    <button 
+                        type="button"
+                        className="cta-button secondary"
+                        onClick={handleClear}
+                        disabled={loading}
+                        aria-label="Clear all inputs and results"
+                    >
+                        Clear all
                     </button>
                 </div>
+
             </form>
         </div>
     )

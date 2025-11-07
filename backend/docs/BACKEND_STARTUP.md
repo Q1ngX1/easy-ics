@@ -47,11 +47,11 @@ python backend_startup.py --check
 ```
 
 **脚本会检查以下内容：**
-- ✅ Python 版本 (需要 3.11+)
-- ✅ Tesseract OCR 是否安装
-- ✅ Python 依赖是否完整
-- ✅ 项目文件是否存在
-- ✅ 提供详细的启动指南
+- \u2713 Python 版本 (需要 3.11+)
+- \u2713 Tesseract OCR 是否安装
+- \u2713 Python 依赖是否完整
+- \u2713 项目文件是否存在
+- \u2713 提供详细的启动指南
 
 ### 手动检查
 
@@ -159,12 +159,12 @@ python backend_startup.py --help
 
 **检查输出示例：**
 ```
-✅ Python 3.11.14
-✅ Tesseract OCR: tesseract 5.3.0
-✅ FastAPI
-✅ Pydantic
-✅ Uvicorn
-✅ 主应用: backend/app/main.py
+\u2713 Python 3.11.14
+\u2713 Tesseract OCR: tesseract 5.3.0
+\u2713 FastAPI
+\u2713 Pydantic
+\u2713 Uvicorn
+\u2713 主应用: backend/app/main.py
 ```
 
 **2. 启动指南**

@@ -1,13 +1,12 @@
 #!/usr/bin/env python3
 """
-easy-ics 后端启动检查和运行脚本
 easy-ics backend startup script
 
-用法:
-    python backend_startup.py              # 显示启动信息
-    python backend_startup.py --run        # 启动服务
-    python backend_startup.py --test       # 运行快速测试
-    python backend_startup.py --check      # 仅检查环境
+Usage:
+    python backend_startup.py              # Show startup info
+    python backend_startup.py --run        # Start service
+    python backend_startup.py --test       # Run quick test
+    python backend_startup.py --check      # Env check only
 """
 
 import sys
@@ -16,7 +15,6 @@ import shutil
 from pathlib import Path
 from typing import Tuple
 
-# 颜色定义
 class Colors:
     GREEN = '\033[0;32m'
     RED = '\033[0;31m'
@@ -27,17 +25,14 @@ class Colors:
     END = '\033[0m'
 
 def print_header(text: str):
-    """打印标题"""
     print(f"\n{Colors.BLUE}{Colors.BOLD}{text}{Colors.END}")
     print(f"{Colors.BLUE}{'─'*60}{Colors.END}")
 
 def print_success(text: str):
-    """打印成功信息"""
-    print(f"{Colors.GREEN}✅ {text}{Colors.END}")
+    print(f"{Colors.GREEN}\u2713 {text}{Colors.END}")
 
 def print_error(text: str):
-    """打印错误信息"""
-    print(f"{Colors.RED}❌ {text}{Colors.END}")
+    print(f"{Colors.RED}\u2718 {text}{Colors.END}")
 
 def print_warning(text: str):
     """打印警告信息"""

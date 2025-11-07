@@ -427,7 +427,7 @@ class TestRealImageRecognition:
             text = service.extract_text_from_image(str(image_path))
             
             # 打印识别结果
-            print(f"✅ 识别成功！")
+            print(f"\u2713 识别成功！")
             print(f"\n识别结果:")
             print(f"{'-'*60}")
             print(text)
@@ -445,7 +445,7 @@ class TestRealImageRecognition:
             assert len(text) > 0, "OCR 未识别到任何文本"
             
         except Exception as e:
-            print(f"\n❌ 识别失败: {str(e)}\n")
+            print(f"\n\u2718 识别失败: {str(e)}\n")
             raise
     
     def test_recognize_real_image_from_bytes(self):
@@ -485,7 +485,7 @@ class TestRealImageRecognition:
             text = service.extract_text_from_bytes(image_bytes)
             
             # 打印识别结果
-            print(f"✅ 识别成功！")
+            print(f"\u2713 识别成功！")
             print(f"\n识别结果:")
             print(f"{'-'*60}")
             print(text)
@@ -495,7 +495,7 @@ class TestRealImageRecognition:
             assert len(text) > 0, "OCR 未识别到任何文本"
             
         except Exception as e:
-            print(f"\n❌ 识别失败: {str(e)}\n")
+            print(f"\n\u2718 识别失败: {str(e)}\n")
             raise
     
     def test_recognize_real_image_get_info(self):
@@ -529,7 +529,7 @@ class TestRealImageRecognition:
             info = service.get_image_info(str(image_path))
             
             # 打印图片信息
-            print(f"\n✅ 获取成功！")
+            print(f"\n\u2713 获取成功！")
             print(f"\n📷 图片基本信息:")
             print(f"  - 尺寸: {info['image_size']}")
             print(f"  - 格式: {info['image_format']}")
@@ -554,7 +554,7 @@ class TestRealImageRecognition:
             print(f"\n{'='*60}\n")
             
         except Exception as e:
-            print(f"\n❌ 获取信息失败: {str(e)}\n")
+            print(f"\n\u2718 获取信息失败: {str(e)}\n")
             raise
 
 

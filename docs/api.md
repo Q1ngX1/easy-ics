@@ -17,8 +17,8 @@ Easy ICS API 是一个 RESTful 服务，用于将图片或文本转换为 ICS �
 
 | 方法 | 端点 | 描述 | 状态 |
 |------|------|------|------|
-| POST | `/api/ocr/upload` | 上传图片进行 OCR 识别 | ✅ 已实现 |
-| GET | `/api/ocr/health` | OCR 服务健康检查 | ✅ 已实现 |
+| POST | `/api/ocr/upload` | 上传图片进行 OCR 识别 | \u2713 已实现 |
+| GET | `/api/ocr/health` | OCR 服务健康检查 | \u2713 已实现 |
 | POST | `/api/text/parse` | 解析文本提取事件 | 🚧 开发中 |
 | POST | `/api/ics/generate` | 生成 ICS 日历文件 | 🚧 开发中 |
 | POST | `/api/process` | 完整处理流程 | 🚧 开发中 |
@@ -41,8 +41,8 @@ POST /api/ocr/upload
 
 | 参数 | 类型 | 必需 | 描述 |
 |------|------|------|------|
-| file | File | ✅ | 上传的图片文件 (PNG, JPG, JPEG, BMP, TIFF) |
-| lang | String | ❌ | OCR 识别语言，例如 `chi_sim+eng` (默认: `chi_sim+eng`) |
+| file | File | \u2713 | 上传的图片文件 (PNG, JPG, JPEG, BMP, TIFF) |
+| lang | String | \u2718 | OCR 识别语言，例如 `chi_sim+eng` (默认: `chi_sim+eng`) |
 
 #### 支持的图片格式
 - PNG
@@ -195,7 +195,7 @@ POST /api/text/parse
 
 | 参数 | 类型 | 必需 | 描述 |
 |------|------|------|------|
-| text | String | ✅ | 待解析的文本内容（可来自 OCR 或用户输入） |
+| text | String | \u2713 | 待解析的文本内容（可来自 OCR 或用户输入） |
 
 #### 请求示例
 
@@ -308,7 +308,7 @@ POST /api/process
 
 | 参数 | 类型 | 必需 | 描述 |
 |------|------|------|------|
-| file | File | ✅ | 上传的图片文件 |
+| file | File | \u2713 | 上传的图片文件 |
 
 #### 请求示例
 
@@ -534,9 +534,9 @@ export default OcrUploader;
 ## 开发路线图
 
 ### Phase 1: 基础功能 (已完成)
-- ✅ OCR 图片上传和识别
-- ✅ OCR 服务健康检查
-- ✅ 错误处理和日志记录
+- \u2713 OCR 图片上传和识别
+- \u2713 OCR 服务健康检查
+- \u2713 错误处理和日志记录
 
 ### Phase 2: 核心功能 (开发中)
 - 🚧 文本解析和事件提取
