@@ -26,7 +26,7 @@ uvicorn app.main:app --reload
 # Open browser: http://localhost:8000/docs
 ```
 
-**Detailed Guide:** 📖 [Backend Startup Guide](./backend/docs/BACKEND_STARTUP.md)
+**Detailed Guide:** 📖 [Backend Startup Guide](./backend/docs/run.py.md)
 
 ### Frontend Development Server Setup
 
@@ -57,7 +57,7 @@ easy-ics/
 │   ├── tests/                 # Unit tests
 │   ├── docs/                  # Documentation
 │   ├── pyproject.toml         # Project configuration
-│   └── backend_startup.py     # Startup script
+│   └── run.py.py     # Startup script
 ├── frontend/                   # React frontend
 │   ├── src/
 │   │   ├── pages/             # Pages
@@ -85,7 +85,7 @@ easy-ics/
 
 | Document | Description |
 |----------|-------------|
-| [Backend Startup Guide](./backend/docs/BACKEND_STARTUP.md) | How to start backend service and use startup script |
+| [Backend Startup Guide](./backend/docs/run.py.md) | How to start backend service and use startup script |
 | [Backend README](./backend/README.md) | Detailed backend project documentation |
 | [ICS Service Documentation](./backend/docs/ICS_SERVICE.md) | Complete ICS file generation and parsing documentation |
 | [ICS Quick Reference](./backend/docs/ICS_SERVICE_QUICK_REFERENCE.md) | ICS service common methods quick reference |

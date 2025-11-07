@@ -26,7 +26,7 @@ uvicorn app.main:app --reload
 # 打开浏览器：http://localhost:8000/docs
 ```
 
-**详细指南：** 📖 [后端启动指南](./backend/docs/BACKEND_STARTUP.md)
+**详细指南：** 📖 [后端启动指南](./backend/docs/run.py.md)
 
 ### 前端开发服务启动
 
@@ -57,7 +57,7 @@ easy-ics/
 │   ├── tests/                 # 单元测试
 │   ├── docs/                  # 文档
 │   ├── pyproject.toml         # 项目配置
-│   └── backend_startup.py     # 启动脚本
+│   └── run.py.py     # 启动脚本
 ├── frontend/                   # React 前端
 │   ├── src/
 │   │   ├── pages/             # 页面
@@ -85,7 +85,7 @@ easy-ics/
 
 | 文档 | 说明 |
 |------|------|
-| [后端启动指南](./backend/docs/BACKEND_STARTUP.md) | 如何启动后端服务和使用启动脚本 |
+| [后端启动指南](./backend/docs/run.py.md) | 如何启动后端服务和使用启动脚本 |
 | [后端 README](./backend/README.md) | 后端项目详细说明 |
 | [ICS 服务文档](./backend/docs/ICS_SERVICE.md) | ICS 文件生成和解析完整文档 |
 | [ICS 快速参考](./backend/docs/ICS_SERVICE_QUICK_REFERENCE.md) | ICS 服务常用方法速查 |

@@ -40,10 +40,10 @@ uvicorn app.main:app --reload
 
 ```bash
 # 方式 1: 显示完整的启动信息和检查（推荐）
-python backend_startup.py
+python run.py.py
 
 # 方式 2: 仅运行环境检查
-python backend_startup.py --check
+python run.py.py --check
 ```
 
 **脚本会检查以下内容：**
@@ -120,14 +120,14 @@ uvicorn app.main:app --reload --host 127.0.0.1 --port 8000
 
 ```bash
 # 使用脚本启动服务
-python backend_startup.py --run
+python run.py.py --run
 ```
 
 ---
 
 ## 🛠️ 使用脚本
 
-### backend_startup.py 脚本用法
+### run.py.py 脚本用法
 
 这是一个强大的辅助脚本，可以自动检查环境和启动服务。
 
@@ -135,16 +135,16 @@ python backend_startup.py --run
 
 ```bash
 # 显示完整的启动信息和建议（默认）
-python backend_startup.py
+python run.py.py
 
 # 启动服务（包含环境检查）
-python backend_startup.py --run
+python run.py.py --run
 
 # 仅检查环境
-python backend_startup.py --check
+python run.py.py --check
 
 # 显示帮助信息
-python backend_startup.py --help
+python run.py.py --help
 ```
 
 #### 脚本功能详解
@@ -179,7 +179,7 @@ python backend_startup.py --help
 
 使用 `--run` 参数：
 ```bash
-python backend_startup.py --run
+python run.py.py --run
 ```
 
 这会自动：
@@ -470,9 +470,9 @@ backend/
 │   ├── API.md                  # API 文档
 │   ├── ICS_SERVICE.md          # ICS 服务文档
 │   ├── ICS_SERVICE_QUICK_REFERENCE.md  # 快速参考
-│   └── BACKEND_STARTUP.md      # 本文档
+│   └── run.py.md      # 本文档
 ├── pyproject.toml              # 项目配置
-├── backend_startup.py          # 启动脚本
+├── run.py.py          # 启动脚本
 └── README.md                   # 项目说明
 ```
 
