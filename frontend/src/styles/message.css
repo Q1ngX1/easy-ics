@@ -1,5 +1,3 @@
-/* ========== 消息提示样式 ========== */
-
 .message-box {
   display: flex;
   align-items: flex-start;
@@ -50,7 +48,6 @@
   opacity: 1;
 }
 
-/* 错误消息样式 */
 .error-box {
   background: #ffebee;
   border-left-color: #f44336;
@@ -61,7 +58,6 @@
   color: #c62828;
 }
 
-/* 成功消息样式 */
 .success-box {
   background: #e8f5e9;
   border-left-color: #4caf50;

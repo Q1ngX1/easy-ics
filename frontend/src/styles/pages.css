@@ -1,7 +1,3 @@
-/* ========== Pages 样式统一入口 ========== */
-/* 所有样式已模块化分离到独立文件中 */
-/* 详见 styles 文件夹下的各个 CSS 文件 */
-
 @import './common.css';
 @import './home.css';
 @import './form.css';
