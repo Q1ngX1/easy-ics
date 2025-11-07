@@ -1,6 +1,6 @@
 """
 Dependencies:
-- Tesseract OCR: https://github.com/UB-Mannheim/tesseract/wiki
+- Tesseract OCR: https://github.com/UB-Mannheim/tesseract/wiki https://digi.bib.uni-mannheim.de/tesseract/
 - Windows Version: tesseract-ocr-w64-setup-5.3.4.20240503.exe
 - macOS: brew install tesseract-lang
 

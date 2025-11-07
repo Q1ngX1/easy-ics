@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef} from 'react'
 import '../styles/pages.css'
-import { uploadImage, uploadText, downloadICS, triggerDownload } from '../services/apiService'
+import '../styles/checkbox.css'
+import { uploadImage, uploadText, downloadICS, triggerDownload } from '../services/api'
 
 export default function Home() {
     const [image, setImage] = useState(null)
@@ -10,6 +11,10 @@ export default function Home() {
     const [loading, setLoading] = useState(false)
     const [result, setResult] = useState(null) // parsed events
     const [error, setError] = useState(null)
+    const [useLocation, setUseLocation] = useState(false)
+    const [useTimezone, setUseTimezone] = useState(false)
+    const [locationInfo, setLocationInfo] = useState(null)
+    const [timezoneInfo, setTimezoneInfo] = useState(null)
     const fileInputRef = useRef(null)
 
     const handleImageChange = (e) => {
@@ -62,6 +67,25 @@ export default function Home() {
 
         try {
             let events = []
+            
+            // Get user location if checked
+            if (useLocation && !locationInfo) {
+                try {
+                    const location = await getUserLocation()
+                    setLocationInfo(location)
+                } catch (err) {
+                    console.warn('Location permission denied:', err)
+                    setUseLocation(false)
+                }
+            }
+            
+            // Get user timezone if checked
+            if (useTimezone && !timezoneInfo) {
+                const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone
+                const datetime = new Date().toISOString()
+                setTimezoneInfo({ timezone, datetime })
+            }
+            
             // Upload image and extract text via OCR
             if (image) {
                 const uploadRes = await uploadImage(image)
@@ -70,7 +94,7 @@ export default function Home() {
                 }
                 // If text extracted, parse it to events
                 if (uploadRes.text && uploadRes.text.trim().length > 0) {
-                    const parseRes = await uploadText(uploadRes.text)
+                    const parseRes = await uploadText(uploadRes.text, timezoneInfo?.timezone)
                     if (!parseRes.success) {
                         throw new Error(parseRes.message || 'Text parsing failed')
                     }
@@ -83,7 +107,7 @@ export default function Home() {
             }
             // Parse text directly
             else if (text) {
-                const parseRes = await uploadText(text)
+                const parseRes = await uploadText(text, timezoneInfo?.timezone)
                 if (!parseRes.success) {
                     throw new Error(parseRes.message || 'Text parsing failed')
                 }
@@ -105,6 +129,26 @@ export default function Home() {
         } finally {
             setLoading(false)
         }
+    }
+
+    // Get user's geolocation
+    const getUserLocation = () => {
+        return new Promise((resolve, reject) => {
+            if (!navigator.geolocation) {
+                reject(new Error('Geolocation not supported'))
+                return
+            }
+            navigator.geolocation.getCurrentPosition(
+                (position) => {
+                    resolve({
+                        latitude: position.coords.latitude,
+                        longitude: position.coords.longitude,
+                        accuracy: position.coords.accuracy,
+                    })
+                },
+                (error) => reject(error)
+            )
+        })
     }
 
     const handleDownloadICS = async () => {
@@ -216,6 +260,49 @@ export default function Home() {
                     </button>
                 </div>
             )}
+
+            {/* Use my location and use my timezone */}
+            <div className="check-box">
+                <label className="checkbox-label">
+                    <input
+                        type="checkbox"
+                        checked={useLocation}
+                        onChange={(e) => {
+                            setUseLocation(e.target.checked)
+                            if (!e.target.checked) {
+                                setLocationInfo(null)
+                            }
+                        }}
+                    />
+                    <span>Use my location</span>
+                    {locationInfo && (
+                        <span className="info-text">
+                            ({locationInfo.latitude.toFixed(4)}, {locationInfo.longitude.toFixed(4)})
+                        </span>
+                    )}
+                </label>
+
+                <label className="checkbox-label">
+                    <input
+                        type="checkbox"
+                        checked={useTimezone}
+                        onChange={(e) => {
+                            setUseTimezone(e.target.checked)
+                            if (e.target.checked) {
+                                const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone
+                                setTimezoneInfo({ timezone, datetime: new Date().toISOString() })
+                            } else {
+                                setTimezoneInfo(null)
+                            }
+                        }}
+                    />
+                    <span>Use my timezone</span>
+                    {timezoneInfo && (
+                        <span className="info-text">({timezoneInfo.timezone})</span>
+                    )}
+                </label>
+            </div>
+
 
             {/* Success message with result preview and download */}
             {result && result.length > 0 && (

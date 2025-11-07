@@ -1,0 +1,103 @@
+/* ========== 关于页面样式 ========== */
+
+/* 关于部分 */
+.about-section {
+  margin: 2rem 0;
+  padding: 1.5rem;
+  background: #f9f9f9;
+  border-radius: 8px;
+  border-left: 4px solid #667eea;
+}
+
+.about-section p {
+  color: #555;
+  line-height: 1.8;
+  margin: 0.5rem 0;
+}
+
+/* 功能列表 */
+.feature-list {
+  list-style: none;
+  padding: 0;
+  margin: 1rem 0;
+}
+
+.feature-list li {
+  padding: 0.8rem 0;
+  color: #555;
+  line-height: 1.8;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.feature-list li:last-child {
+  border-bottom: none;
+}
+
+/* 技术栈 */
+.tech-stack {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin: 1rem 0;
+}
+
+.tech-badge {
+  display: inline-block;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 0.5rem 1.2rem;
+  border-radius: 20px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  box-shadow: 0 2px 8px rgba(102, 126, 234, 0.2);
+}
+
+/* 联系信息 */
+.contact-info {
+  background: white;
+  padding: 1.5rem;
+  border-radius: 8px;
+  border: 1px solid #e0e0e0;
+  margin: 1rem 0;
+}
+
+.contact-info p {
+  margin: 0.5rem 0;
+  font-size: 1rem;
+  color: #555;
+}
+
+/* 复制邮箱按钮 */
+.copy-email {
+  cursor: pointer;
+  padding: 0.5rem;
+  border-radius: 6px;
+  transition: all 0.3s ease;
+  user-select: none;
+}
+
+.copy-email:hover {
+  background: rgba(102, 126, 234, 0.1);
+  color: #667eea;
+}
+
+.copy-hint {
+  color: #4caf50;
+  font-weight: 600;
+  margin-left: 0.5rem;
+  animation: fadeInOut 2s ease-in-out;
+}
+
+@keyframes fadeInOut {
+  0% { opacity: 0; }
+  10% { opacity: 1; }
+  90% { opacity: 1; }
+  100% { opacity: 0; }
+}
+
+/* ========== 响应式设计 ========== */
+@media (max-width: 768px) {
+  .tech-stack {
+    justify-content: center;
+  }
+}

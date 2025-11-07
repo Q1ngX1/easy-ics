@@ -9,16 +9,14 @@ from app.services.ics_service import ICSService
 
 
 class TestICSService:
-    """ICS 服务测试"""
+    """ICS Service tests"""
     
     @pytest.fixture
     def ics_service(self):
-        """创建 ICS 服务实例"""
         return ICSService()
     
     @pytest.fixture
     def sample_events(self):
-        """创建示例事件"""
         now = datetime.now()
         return [
             Event(

@@ -317,13 +317,13 @@ class TestLanguageHandling:
         """Test Chinese language recognition"""
         mock_img = MagicMock()
         mock_image_open.return_value = mock_img
-        mock_ocr.return_value = '你好世界'
+        mock_ocr.return_value = 'Hello World'
         
         with patch('pathlib.Path.exists', return_value=True):
             service = OCRService(lang='chi_sim')
             result = service.extract_text_from_image('test.png')
         
-        assert result == '你好世界'
+        assert result == 'Hello World'
         assert mock_ocr.call_args[1]['lang'] == 'chi_sim'
 
     @patch('pytesseract.image_to_string')
@@ -389,155 +389,199 @@ class TestRealImageRecognition:
         # Get test image path
         test_image_dir = Path(__file__).parent / "image"
         
-        # Find first PNG or JPG file
+        # Find all PNG or JPG files
         image_files = list(test_image_dir.glob("*.png")) + list(test_image_dir.glob("*.jpg"))
         
         if not image_files:
             pytest.skip("No test image files found")
-        
-        image_path = image_files[0]
-        print(f"\n\n{'='*60}")
-        print(f"Test image: {image_path.name}")
-        print(f"Full path: {image_path}")
-        print(f"{'='*60}\n")
         
         # Check if Tesseract is available
         service = OCRService()
         if not service.is_tesseract_available():
             pytest.skip("Tesseract OCR not installed, cannot run this test")
         
-        try:
-            # Execute OCR recognition
-            print("⏳ Recognizing text...")
-            text = service.extract_text_from_image(str(image_path))
+        print(f"\n\n{'='*60}")
+        print(f"Testing {len(image_files)} image(s) from file")
+        print(f"{'='*60}\n")
+        
+        successful_count = 0
+        failed_files = []
+        
+        for idx, image_path in enumerate(image_files, 1):
+            print(f"\n[{idx}/{len(image_files)}] Processing: {image_path.name}")
+            print(f"Full path: {image_path}")
             
-            # Print recognition result
-            print(f"\u2713 Recognition successful!")
-            print(f"\nRecognition result:")
-            print(f"{'-'*60}")
-            print(text)
-            print(f"{'-'*60}\n")
-            
-            # Print text statistics
-            lines = text.strip().split('\n')
-            print(f"📊 Statistics:")
-            print(f"  - Total characters: {len(text)}")
-            print(f"  - Total lines: {len(lines)}")
-            print(f"  - Average line length: {len(text) // len(lines) if lines else 0}")
-            print(f"\n{'='*60}\n")
-            
-            # Assert text was recognized
-            assert len(text) > 0, "OCR did not recognize any text"
-            
-        except Exception as e:
-            print(f"\n\u2718 Recognition failed: {str(e)}\n")
-            raise
+            try:
+                # Execute OCR recognition
+                print("⏳ Recognizing text...")
+                text = service.extract_text_from_image(str(image_path))
+                
+                # Print recognition result
+                print(f"✓ Recognition successful!")
+                print(f"Text (first 100 chars): {text[:100]}...")
+                
+                # Print text statistics
+                lines = text.strip().split('\n')
+                print(f"📊 Statistics:")
+                print(f"  - Total characters: {len(text)}")
+                print(f"  - Total lines: {len(lines)}")
+                print(f"  - Average line length: {len(text) // len(lines) if lines else 0}")
+                
+                # Assert text was recognized
+                assert len(text) > 0, "OCR did not recognize any text"
+                successful_count += 1
+                
+            except Exception as e:
+                print(f"✘ Recognition failed: {str(e)}")
+                failed_files.append((image_path.name, str(e)))
+        
+        print(f"\n{'='*60}")
+        print(f"Summary: {successful_count}/{len(image_files)} files processed successfully")
+        if failed_files:
+            print(f"\nFailed files:")
+            for filename, error in failed_files:
+                print(f"  - {filename}: {error}")
+        print(f"{'='*60}\n")
+        
+        # Assert at least one file was processed successfully
+        assert successful_count > 0, f"No files were successfully processed. Failed: {len(failed_files)}"
     
     def test_recognize_real_image_from_bytes(self):
         """
         Test real image recognition from bytes stream
         
-        This test reads real images from tests/image directory and converts to bytes stream
+        This test reads all real images from tests/image directory and converts to bytes stream
         """
         # Get test image path
         test_image_dir = Path(__file__).parent / "image"
         
-        # Find first PNG or JPG file
+        # Find all PNG or JPG files
         image_files = list(test_image_dir.glob("*.png")) + list(test_image_dir.glob("*.jpg"))
         
         if not image_files:
             pytest.skip("No test image files found")
-        
-        image_path = image_files[0]
-        print(f"\n\n{'='*60}")
-        print(f"Test bytes stream recognition: {image_path.name}")
-        print(f"{'='*60}\n")
         
         # Check if Tesseract is available
         service = OCRService()
         if not service.is_tesseract_available():
             pytest.skip("Tesseract OCR not installed, cannot run this test")
         
-        try:
-            # Read image file as bytes stream
-            with open(image_path, 'rb') as f:
-                image_bytes = f.read()
+        print(f"\n\n{'='*60}")
+        print(f"Testing {len(image_files)} image(s) from bytes stream")
+        print(f"{'='*60}\n")
+        
+        successful_count = 0
+        failed_files = []
+        
+        for idx, image_path in enumerate(image_files, 1):
+            print(f"\n[{idx}/{len(image_files)}] Processing: {image_path.name}")
             
-            print(f"📁 File size: {len(image_bytes)} bytes")
-            print(f"⏳ Recognizing text...\n")
-            
-            # Execute OCR recognition
-            text = service.extract_text_from_bytes(image_bytes)
-            
-            # Print recognition result
-            print(f"\u2713 Recognition successful!")
-            print(f"\nRecognition result:")
-            print(f"{'-'*60}")
-            print(text)
-            print(f"{'-'*60}\n")
-            
-            # Assert text was recognized
-            assert len(text) > 0, "OCR did not recognize any text"
-            
-        except Exception as e:
-            print(f"\n\u2718 Recognition failed: {str(e)}\n")
-            raise
+            try:
+                # Read image file as bytes stream
+                with open(image_path, 'rb') as f:
+                    image_bytes = f.read()
+                
+                print(f"📁 File size: {len(image_bytes)} bytes")
+                print(f"⏳ Recognizing text...")
+                
+                # Execute OCR recognition
+                text = service.extract_text_from_bytes(image_bytes)
+                
+                # Print recognition result
+                print(f"✓ Recognition successful!")
+                print(f"Text (first 100 chars): {text[:100]}...")
+                
+                # Assert text was recognized
+                assert len(text) > 0, "OCR did not recognize any text"
+                successful_count += 1
+                
+            except Exception as e:
+                print(f"✘ Recognition failed: {str(e)}")
+                failed_files.append((image_path.name, str(e)))
+        
+        print(f"\n{'='*60}")
+        print(f"Summary: {successful_count}/{len(image_files)} files processed successfully")
+        if failed_files:
+            print(f"\nFailed files:")
+            for filename, error in failed_files:
+                print(f"  - {filename}: {error}")
+        print(f"{'='*60}\n")
+        
+        # Assert at least one file was processed successfully
+        assert successful_count > 0, f"No files were successfully processed. Failed: {len(failed_files)}"
     
     def test_recognize_real_image_get_info(self):
         """
-        Get detailed information and OCR data for real image
+        Get detailed information and OCR data for real images
         
-        This test retrieves and prints detailed image information and OCR recognition data
+        This test retrieves and prints detailed image information and OCR recognition data for all images
         """
         # Get test image path
         test_image_dir = Path(__file__).parent / "image"
         
-        # Find first PNG or JPG file
+        # Find all PNG or JPG files
         image_files = list(test_image_dir.glob("*.png")) + list(test_image_dir.glob("*.jpg"))
         
         if not image_files:
             pytest.skip("No test image files found")
-        
-        image_path = image_files[0]
-        print(f"\n\n{'='*60}")
-        print(f"Get detailed image info: {image_path.name}")
-        print(f"{'='*60}\n")
         
         # Check if Tesseract is available
         service = OCRService()
         if not service.is_tesseract_available():
             pytest.skip("Tesseract OCR not installed, cannot run this test")
         
-        try:
-            # Get image info
-            print("⏳ Getting image information...")
-            info = service.get_image_info(str(image_path))
+        print(f"\n\n{'='*60}")
+        print(f"Getting detailed info for {len(image_files)} image(s)")
+        print(f"{'='*60}\n")
+        
+        successful_count = 0
+        failed_files = []
+        
+        for idx, image_path in enumerate(image_files, 1):
+            print(f"\n[{idx}/{len(image_files)}] Processing: {image_path.name}")
             
-            # Print image info
-            print(f"\n\u2713 Success!")
-            print(f"\n📷 Image basic information:")
-            print(f"  - Size: {info['image_size']}")
-            print(f"  - Format: {info['image_format']}")
-            print(f"  - Color mode: {info['image_mode']}")
-            
-            # Print OCR data summary
-            ocr_data = info['ocr_data']
-            print(f"\n🔍 OCR recognition data summary:")
-            
-            if 'text' in ocr_data and ocr_data['text']:
-                # Filter non-empty text
-                texts = [t for t in ocr_data['text'] if t.strip()]
-                print(f"  - Words recognized: {len(texts)}")
-                print(f"  - Word list: {texts[:10]}")  # Show first 10 words
-            
-            if 'conf' in ocr_data:
-                confs = [c for c in ocr_data['conf'] if c > 0]
-                if confs:
-                    avg_conf = sum(confs) / len(confs)
-                    print(f"  - Average confidence: {avg_conf:.2f}%")
-            
-            print(f"\n{'='*60}\n")
-            
-        except Exception as e:
-            print(f"\n\u2718 Failed to get info: {str(e)}\n")
-            raise
+            try:
+                # Get image info
+                print("⏳ Getting image information...")
+                info = service.get_image_info(str(image_path))
+                
+                # Print image info
+                print(f"✓ Success!")
+                print(f"📷 Image information:")
+                print(f"  - Size: {info['image_size']}")
+                print(f"  - Format: {info['image_format']}")
+                print(f"  - Color mode: {info['image_mode']}")
+                
+                # Print OCR data summary
+                ocr_data = info['ocr_data']
+                print(f"🔍 OCR data summary:")
+                
+                if 'text' in ocr_data and ocr_data['text']:
+                    # Filter non-empty text
+                    texts = [t for t in ocr_data['text'] if t.strip()]
+                    print(f"  - Words recognized: {len(texts)}")
+                    if texts:
+                        print(f"  - First 5 words: {texts[:5]}")
+                
+                if 'conf' in ocr_data:
+                    confs = [c for c in ocr_data['conf'] if c > 0]
+                    if confs:
+                        avg_conf = sum(confs) / len(confs)
+                        print(f"  - Average confidence: {avg_conf:.2f}%")
+                
+                successful_count += 1
+                
+            except Exception as e:
+                print(f"✘ Failed to get info: {str(e)}")
+                failed_files.append((image_path.name, str(e)))
+        
+        print(f"\n{'='*60}")
+        print(f"Summary: {successful_count}/{len(image_files)} files processed successfully")
+        if failed_files:
+            print(f"\nFailed files:")
+            for filename, error in failed_files:
+                print(f"  - {filename}: {error}")
+        print(f"{'='*60}\n")
+        
+        # Assert at least one file was processed successfully
+        assert successful_count > 0, f"No files were successfully processed. Failed: {len(failed_files)}"

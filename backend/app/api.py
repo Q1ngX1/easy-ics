@@ -2,11 +2,11 @@
 API router definition
 
 - upload
-    - upload/img
-    - upload/text
-    - upload/patch (future)
-- download -> .ics 
-- health_check
+    - /api/upload/img: OCR image upload
+    - /api/upload/text: Text parsing
+    - /api/upload/patch: Future
+- /api/download_ics: Download ICS file
+- /api/check_health: Health check
 """
 
 from fastapi import APIRouter, UploadFile, File, HTTPException, Query
@@ -25,8 +25,8 @@ router = APIRouter()
 
 # ===== API =====
 
-@router.post("api/upload/timezone")
-def set_timezone(timezone: dict):
+@router.post("api/upload/basetime")
+async def set_timezone(timezone: dict):
     pass
 
 @router.post("/api/upload/img")
@@ -111,18 +111,21 @@ async def upload_img(
 @router.post("/api/upload/text")
 async def upload_text(
     text: str = Query(..., description="text content"),
+    timezone: Optional[str] = Query(None, description="User timezone (IANA format)"),
     lang: Optional[str] = Query("chi_sim+eng", description="OCR Language")
 ):
     """
     Args:
         text: plain text
-        lang: deafult: chi_sim+eng
+        timezone: Optional user timezone (e.g., 'Asia/Shanghai')
+        lang: default: chi_sim+eng
         
     Returns:
         {
             "success": bool,
             "events": List[dict],  
-            "count": int,          
+            "count": int,
+            "timezone": str,
             "message": str
         }
     
@@ -137,16 +140,16 @@ async def upload_text(
         from app.services.parser_service import ParserService
         
         parser = ParserService()
-        event = parser.parse(text)
+        event = parser.parse(text, timezone=timezone)
         
-        logger.info(f"Parsing success")
+        logger.info(f"Parsing success, timezone: {timezone or 'default'}")
         
         return {
             "success": True,
-            "event": event.to_dict,
-            #"events": [event.to_dict() for event in events],
-            #"count": len(events),
-            "message": "Success"
+            "events": [event.to_dict()],
+            "count": 1,
+            "timezone": timezone,
+            "message": "Text parsing success"
         }
         
     except HTTPException:
@@ -177,9 +180,7 @@ async def download_ics(request: ICSDownloadRequest):
     """
     try:
         if not request.events or len(request.events) == 0:
-            raise HTTPException(status_code=400, detail="事件列表不能为空")
-        
-        # TODO: 实现 ICS 生成逻辑
+            raise HTTPException(status_code=400, detail="Events list cannot be empty")
         from app.services.ics_service import ICSService
         from app.models.event import Event
         
@@ -202,12 +203,12 @@ async def download_ics(request: ICSDownloadRequest):
             except ValueError as e:
                 raise HTTPException(
                     status_code=400,
-                    detail=f"time format incorrect: {str(e)}"
+                    detail=f"Time format incorrect: {str(e)}"
                 )
         
         ics_content = ics_service.generate_ics(events)
         
-        logger.info(f"ICS 文件生成成功: {len(events)} 个事件")
+        logger.info(f"ICS file generated successfully: {len(events)} events")
         
         return StreamingResponse(
             iter([ics_content]),
@@ -220,15 +221,15 @@ async def download_ics(request: ICSDownloadRequest):
     except NotImplementedError:
         raise HTTPException(
             status_code=501,
-            detail="ICS 生成功能正在开发中"
+            detail="ICS generation feature is under development"
         )
     except HTTPException:
         raise
     except Exception as e:
-        logger.error(f"ICS 生成失败: {str(e)}", exc_info=True)
+        logger.error(f"ICS generation failed: {str(e)}", exc_info=True)
         raise HTTPException(
             status_code=500,
-            detail=f"ICS 生成失败: {str(e)}"
+            detail=f"ICS generation failed: {str(e)}"
         )
 
 

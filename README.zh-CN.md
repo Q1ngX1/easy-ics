@@ -26,7 +26,7 @@ uvicorn app.main:app --reload
 # 打开浏览器：http://localhost:8000/docs
 ```
 
-**详细指南：** 📖 [后端启动指南](./backend/docs/run.py.md)
+**详细指南：** 📖 [后端启动指南](./docs/run.py.md)
 
 ### 前端开发服务启动
 
@@ -48,7 +48,7 @@ npm run dev
 
 ```
 easy-ics/
-├── backend/                    # Python FastAPI 后端
+├──                     # Python FastAPI 后端
 │   ├── app/
 │   │   ├── main.py            # 应用入口
 │   │   ├── api.py             # API 路由
@@ -85,10 +85,10 @@ easy-ics/
 
 | 文档 | 说明 |
 |------|------|
-| [后端启动指南](./backend/docs/run.py.md) | 如何启动后端服务和使用启动脚本 |
-| [后端 README](./backend/README.md) | 后端项目详细说明 |
-| [ICS 服务文档](./backend/docs/ICS_SERVICE.md) | ICS 文件生成和解析完整文档 |
-| [ICS 快速参考](./backend/docs/ICS_SERVICE_QUICK_REFERENCE.md) | ICS 服务常用方法速查 |
+| [后端启动指南](./docs/run.py.md) | 如何启动后端服务和使用启动脚本 |
+| [后端 README](./README.md) | 后端项目详细说明 |
+| [ICS 服务文档](./docs/ICS_SERVICE.md) | ICS 文件生成和解析完整文档 |
+| [ICS 快速参考](./docs/ICS_SERVICE_QUICK_REFERENCE.md) | ICS 服务常用方法速查 |
 | [前端 README](./frontend/README.md) | 前端项目说明 |
 
 ## 🔧 环境要求
@@ -178,7 +178,7 @@ A: 启动后端后，访问 http://localhost:8000/docs 使用 Swagger UI 测试
 
 **Q: Tesseract 如何安装？**
 
-A: 参考 [后端 README](./backend/README.md#-安装依赖) 中的安装指南
+A: 参考 [后端 README](./README.md#-安装依赖) 中的安装指南
 
 ## 📖 使用示例
 

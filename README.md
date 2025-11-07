@@ -26,7 +26,7 @@ uvicorn app.main:app --reload
 # Open browser: http://localhost:8000/docs
 ```
 
-**Detailed Guide:** 📖 [Backend Startup Guide](./backend/docs/run.py.md)
+**Detailed Guide:** 📖 [Backend Startup Guide](./docs/run.py.md)
 
 ### Frontend Development Server Setup
 
@@ -48,7 +48,7 @@ npm run dev
 
 ```
 easy-ics/
-├── backend/                    # Python FastAPI backend
+├──                     # Python FastAPI backend
 │   ├── app/
 │   │   ├── main.py            # Application entry point
 │   │   ├── api.py             # API routes
@@ -85,10 +85,10 @@ easy-ics/
 
 | Document | Description |
 |----------|-------------|
-| [Backend Startup Guide](./backend/docs/run.py.md) | How to start backend service and use startup script |
-| [Backend README](./backend/README.md) | Detailed backend project documentation |
-| [ICS Service Documentation](./backend/docs/ICS_SERVICE.md) | Complete ICS file generation and parsing documentation |
-| [ICS Quick Reference](./backend/docs/ICS_SERVICE_QUICK_REFERENCE.md) | ICS service common methods quick reference |
+| [Backend Startup Guide](./docs/run.py.md) | How to start backend service and use startup script |
+| [Backend README](./README.md) | Detailed backend project documentation |
+| [ICS Service Documentation](./docs/ICS_SERVICE.md) | Complete ICS file generation and parsing documentation |
+| [ICS Quick Reference](./docs/ICS_SERVICE_QUICK_REFERENCE.md) | ICS service common methods quick reference |
 | [Frontend README](./frontend/README.md) | Frontend project documentation |
 
 ## 🔧 Requirements
@@ -178,7 +178,7 @@ A: After starting the backend, visit http://localhost:8000/docs and use Swagger 
 
 **Q: How to install Tesseract?**
 
-A: Refer to the installation guide in [Backend README](./backend/README.md#-install-dependencies)
+A: Refer to the installation guide in [Backend README](./README.md#-install-dependencies)
 
 ## 📖 Usage Examples
 

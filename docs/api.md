@@ -42,7 +42,7 @@ POST /api/ocr/upload
 | 参数 | 类型 | 必需 | 描述 |
 |------|------|------|------|
 | file | File | \u2713 | 上传的图片文件 (PNG, JPG, JPEG, BMP, TIFF) |
-| lang | String | \u2718 | OCR 识别语言，例如 `chi_sim+eng` (默认: `chi_sim+eng`) |
+| lang | String | ✘ | OCR 识别语言，例如 `chi_sim+eng` (默认: `chi_sim+eng`) |
 
 #### 支持的图片格式
 - PNG
@@ -591,10 +591,10 @@ A: 不会。上传的图片仅用于临时处理，处理完成后立即删除�
 
 ## 相关资源
 
-- [快速开始指南](../backend/README.md)
-- [时区支持文档](../backend/app/models/TIMEZONE_GUIDE.md)
-- [事件模型文档](../backend/app/models/EVENT_GUIDE.md)
-- [OCR 服务文档](../backend/app/services/README.md)
+- [快速开始指南](../README.md)
+- [时区支持文档](../app/models/TIMEZONE_GUIDE.md)
+- [事件模型文档](../app/models/EVENT_GUIDE.md)
+- [OCR 服务文档](../app/services/README.md)
 
 ---
 

@@ -1,0 +1,87 @@
+/* ========== 消息提示样式 ========== */
+
+.message-box {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  padding: 1.2rem;
+  margin-bottom: 1.5rem;
+  border-radius: 8px;
+  border-left: 4px solid;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  animation: slideIn 0.3s ease-in-out;
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.message-icon {
+  font-size: 1.5rem;
+  flex-shrink: 0;
+}
+
+.message-box p {
+  margin: 0;
+  color: inherit;
+  flex: 1;
+}
+
+.message-close {
+  background: none;
+  border: none;
+  font-size: 1.2rem;
+  cursor: pointer;
+  padding: 0;
+  color: inherit;
+  opacity: 0.6;
+  transition: opacity 0.2s;
+  flex-shrink: 0;
+}
+
+.message-close:hover {
+  opacity: 1;
+}
+
+/* 错误消息样式 */
+.error-box {
+  background: #ffebee;
+  border-left-color: #f44336;
+  color: #c62828;
+}
+
+.error-box .message-close {
+  color: #c62828;
+}
+
+/* 成功消息样式 */
+.success-box {
+  background: #e8f5e9;
+  border-left-color: #4caf50;
+  color: #2e7d32;
+}
+
+.success-box .message-close {
+  color: #2e7d32;
+}
+
+.result-content {
+  flex: 1;
+}
+
+.result-content p {
+  margin: 0 0 0.8rem 0;
+  font-size: 1rem;
+}
+
+.result-content .cta-button.secondary {
+  padding: 0.7rem 1.5rem;
+  font-size: 0.95rem;
+}

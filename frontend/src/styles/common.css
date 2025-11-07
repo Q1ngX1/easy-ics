@@ -1,0 +1,61 @@
+/* ========== 通用样式 ========== */
+
+/* 页面内容通用 */
+.page-content {
+  animation: fadeIn 0.5s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* 页面标题 */
+.page-content h1 {
+  font-size: 2.5rem;
+  color: #333;
+  margin-bottom: 1rem;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.page-content h2 {
+  font-size: 1.8rem;
+  color: #333;
+  margin-top: 2rem;
+  margin-bottom: 1rem;
+  border-bottom: 3px solid #667eea;
+  padding-bottom: 0.5rem;
+}
+
+/* 超链接样式 */
+.link {
+  color: #667eea;
+  text-decoration: none;
+  font-weight: 500;
+  transition: color 0.3s ease;
+}
+
+.link:hover {
+  color: #764ba2;
+  text-decoration: underline;
+}
+
+/* ========== 响应式设计 ========== */
+@media (max-width: 768px) {
+  .page-content h1 {
+    font-size: 2rem;
+  }
+
+  .page-content h2 {
+    font-size: 1.5rem;
+  }
+}

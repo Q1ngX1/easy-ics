@@ -314,7 +314,7 @@ def show_troubleshooting():
     """)
 
 def start_server():
-    print_header("Satrt FastAPI service(dev)")
+    print_header("Start FastAPI service (dev)")
     
     print("\n" + Colors.CYAN + "Start: uvicorn app.main:app --reload" + Colors.END)
     print(Colors.CYAN + "Access: http://localhost:8000/docs" + Colors.END)
@@ -322,8 +322,8 @@ def start_server():
     
     try:
         import os
-        backend_dir = Path(__file__).parent / "backend"
-        os.chdir(backend_dir)
+        backend_dir = Path(__file__).parent
+        os.chdir(str(backend_dir))
         subprocess.run(
             ["uvicorn", "app.main:app", "--reload"],
             check=False
@@ -350,7 +350,6 @@ def main():
         elif arg == "--test":
             results = run_checks()
             if results["python"]:
-                # 获取可选的测试单位参数
                 test_unit = sys.argv[2] if len(sys.argv) > 2 else None
                 run_tests(test_unit)
             else:
@@ -386,6 +385,10 @@ def main():
 {Colors.GREEN}Next step:{Colors.END}
 
 1. Start backend service:
+   python run.py --run
+
+   or
+
    cd backend
    uvicorn app.main:app --reload
 
