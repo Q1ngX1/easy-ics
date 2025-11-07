@@ -137,20 +137,16 @@ def run_tests(test_unit: str = None) -> dict:
     """
     backend_dir = Path(__file__).parent
     tests_dir = backend_dir / "tests"
-    
-    # 定义支持的测试单位
     test_units = {
         "ocr": "ocr_test.py",
         "ics": "ics_test.py",
     }
-    
     results = {
         "passed": 0,
         "failed": 0,
         "skipped": 0,
         "total": 0
     }
-    
     try:
         if test_unit:
             if test_unit not in test_units:

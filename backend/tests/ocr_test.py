@@ -1,11 +1,5 @@
 """
 OCR Service Unit Tests
-
-测试 OCRService 的核心功能，包括：
-- Tesseract 可用性检查
-- 语言支持检查
-- 图片文件验证
-- 字节流处理
 """
 
 import pytest
@@ -26,31 +20,28 @@ logger = logging.getLogger(__name__)
 
 
 class TestOCRServiceInitialization:
-    """OCR 服务初始化测试"""
+    """OCR Service Initialization Tests"""
 
     def test_ocr_service_init_default_language(self):
-        """测试 OCRService 初始化时的默认语言"""
         service = OCRService()
         assert service.lang == 'chi_sim+eng'
 
     def test_ocr_service_init_custom_language(self):
-        """测试 OCRService 初始化时的自定义语言"""
         service = OCRService(lang='eng')
         assert service.lang == 'eng'
 
     def test_get_ocr_service_singleton(self):
-        """测试 OCRService 单例模式"""
         service1 = get_ocr_service()
         service2 = get_ocr_service()
         assert service1 is service2
 
 
 class TestTesseractAvailability:
-    """Tesseract 可用性测试"""
-
+    """Tesseract Availability Tests"""
+    
     @patch('pytesseract.get_tesseract_version')
     def test_is_tesseract_available_true(self, mock_version):
-        """测试 Tesseract 可用的情况"""
+        """Test Tesseract availability"""
         mock_version.return_value = 'tesseract 5.3.4'
         
         service = OCRService()
@@ -61,7 +52,7 @@ class TestTesseractAvailability:
 
     @patch('pytesseract.get_tesseract_version')
     def test_is_tesseract_available_false(self, mock_version):
-        """测试 Tesseract 不可用的情况"""
+        """Test Tesseract unavailability"""
         mock_version.side_effect = Exception('Tesseract not found')
         
         service = OCRService()
@@ -71,11 +62,11 @@ class TestTesseractAvailability:
 
 
 class TestLanguageSupport:
-    """语言支持测试"""
+    """Language Support Tests"""
 
     @patch('pytesseract.get_languages')
     def test_get_available_languages_success(self, mock_langs):
-        """测试获取支持的语言列表"""
+        """Test retrieving supported languages list"""
         mock_langs.return_value = ['chi_sim', 'chi_tra', 'eng', 'jpn']
         
         service = OCRService()
@@ -87,7 +78,7 @@ class TestLanguageSupport:
 
     @patch('pytesseract.get_languages')
     def test_get_available_languages_error(self, mock_langs):
-        """测试获取语言列表失败时返回空列表"""
+        """Test retrieving language list returns empty when error occurs"""
         mock_langs.side_effect = Exception('Error getting languages')
         
         service = OCRService()
@@ -97,18 +88,18 @@ class TestLanguageSupport:
 
 
 class TestExtractTextFromImage:
-    """从图片文件提取文本测试"""
+    """Extract Text From Image File Tests"""
 
     @patch('pytesseract.image_to_string')
     @patch('app.services.ocr_service.Image.open')
     def test_extract_text_from_image_success(self, mock_image_open, mock_ocr):
-        """测试成功从图片提取文本"""
-        # Mock 图片和 OCR 结果
+        """Test successfully extracting text from image"""
+        # Mock image and OCR result
         mock_img = MagicMock()
         mock_image_open.return_value = mock_img
         mock_ocr.return_value = '  Test OCR Result  '
         
-        # 创建临时测试文件
+        # Create temporary test file
         with patch('pathlib.Path.exists', return_value=True):
             service = OCRService()
             result = service.extract_text_from_image('test.png')
@@ -117,7 +108,7 @@ class TestExtractTextFromImage:
         mock_ocr.assert_called_once()
 
     def test_extract_text_from_image_file_not_found(self):
-        """测试文件不存在的情况"""
+        """Test file not found scenario"""
         service = OCRService()
         
         with pytest.raises(FileNotFoundError):
@@ -126,7 +117,7 @@ class TestExtractTextFromImage:
     @patch('pytesseract.image_to_string')
     @patch('app.services.ocr_service.Image.open')
     def test_extract_text_from_image_with_config(self, mock_image_open, mock_ocr):
-        """测试带有 Tesseract 配置参数的提取"""
+        """Test extraction with Tesseract config parameters"""
         mock_img = MagicMock()
         mock_image_open.return_value = mock_img
         mock_ocr.return_value = 'Result'
@@ -135,14 +126,14 @@ class TestExtractTextFromImage:
             service = OCRService()
             result = service.extract_text_from_image('test.png', config='--psm 6')
         
-        # 验证 config 参数被正确传递
+        # Verify config parameter is passed correctly
         mock_ocr.assert_called_once()
         assert mock_ocr.call_args[1]['config'] == '--psm 6'
 
     @patch('pytesseract.image_to_string')
     @patch('app.services.ocr_service.Image.open')
     def test_extract_text_from_image_ocr_error(self, mock_image_open, mock_ocr):
-        """测试 OCR 识别失败的情况"""
+        """Test OCR recognition failure scenario"""
         mock_img = MagicMock()
         mock_image_open.return_value = mock_img
         mock_ocr.side_effect = Exception('OCR Error')
@@ -152,16 +143,16 @@ class TestExtractTextFromImage:
             with pytest.raises(Exception) as exc_info:
                 service.extract_text_from_image('test.png')
             
-            assert 'OCR 识别失败' in str(exc_info.value)
+            assert 'OCR recognition failed' in str(exc_info.value)
 
 
 class TestExtractTextFromBytes:
-    """从字节流提取文本测试"""
+    """Extract Text From Bytes Stream Tests"""
 
     @patch('pytesseract.image_to_string')
     def test_extract_text_from_bytes_success(self, mock_ocr):
-        """测试成功从字节流提取文本"""
-        # 创建一个简单的图片字节流
+        """Test successfully extracting text from bytes stream"""
+        # Create a simple image bytes stream
         img = Image.new('RGB', (100, 100), color='white')
         img_bytes = BytesIO()
         img.save(img_bytes, format='PNG')
@@ -176,7 +167,7 @@ class TestExtractTextFromBytes:
         mock_ocr.assert_called_once()
 
     def test_extract_text_from_bytes_empty(self):
-        """测试空字节流的处理"""
+        """Test handling of empty bytes stream"""
         service = OCRService()
         
         with pytest.raises(Exception):
@@ -184,7 +175,7 @@ class TestExtractTextFromBytes:
 
     @patch('pytesseract.image_to_string')
     def test_extract_text_from_bytes_invalid_image(self, mock_ocr):
-        """测试无效的图片数据"""
+        """Test invalid image data"""
         service = OCRService()
         
         with pytest.raises(Exception):
@@ -192,7 +183,7 @@ class TestExtractTextFromBytes:
 
     @patch('pytesseract.image_to_string')
     def test_extract_text_from_bytes_with_config(self, mock_ocr):
-        """测试带有配置参数的字节流提取"""
+        """Test extraction from bytes with config parameters"""
         img = Image.new('RGB', (100, 100), color='white')
         img_bytes = BytesIO()
         img.save(img_bytes, format='PNG')
@@ -203,12 +194,12 @@ class TestExtractTextFromBytes:
         service = OCRService()
         result = service.extract_text_from_bytes(image_bytes, config='--psm 6')
         
-        # 验证 config 参数被正确传递
+        # Verify config parameter is passed correctly
         assert mock_ocr.call_args[1]['config'] == '--psm 6'
 
     @patch('pytesseract.image_to_string')
     def test_extract_text_from_bytes_ocr_error(self, mock_ocr):
-        """测试字节流 OCR 识别失败"""
+        """Test bytes extraction OCR recognition failure"""
         img = Image.new('RGB', (100, 100), color='white')
         img_bytes = BytesIO()
         img.save(img_bytes, format='PNG')
@@ -220,16 +211,16 @@ class TestExtractTextFromBytes:
         with pytest.raises(Exception) as exc_info:
             service.extract_text_from_bytes(image_bytes)
         
-        assert 'OCR 识别失败' in str(exc_info.value)
+        assert 'OCR recognition failed' in str(exc_info.value)
 
 
 class TestGetImageInfo:
-    """获取图片信息测试"""
+    """Get Image Info Tests"""
 
     @patch('pytesseract.image_to_data')
     @patch('app.services.ocr_service.Image.open')
     def test_get_image_info_success(self, mock_image_open, mock_data):
-        """测试成功获取图片信息"""
+        """Test successfully retrieving image info"""
         mock_img = MagicMock()
         mock_img.size = (100, 100)
         mock_img.format = 'PNG'
@@ -264,18 +255,18 @@ class TestGetImageInfo:
         assert info['image_mode'] == 'RGB'
 
     def test_get_image_info_file_not_found(self):
-        """测试文件不存在的情况"""
+        """Test file not found scenario"""
         service = OCRService()
         
         with pytest.raises(Exception) as exc_info:
             service.get_image_info('/nonexistent/file.png')
         
-        assert '图片文件不存在' in str(exc_info.value)
+        assert 'Image file not found' in str(exc_info.value)
 
     @patch('pytesseract.image_to_data')
     @patch('app.services.ocr_service.Image.open')
     def test_get_image_info_error(self, mock_image_open, mock_data):
-        """测试获取图片信息失败"""
+        """Test getting image info failure"""
         mock_image_open.side_effect = Exception('Image Error')
         
         with patch('pathlib.Path.exists', return_value=True):
@@ -283,16 +274,16 @@ class TestGetImageInfo:
             with pytest.raises(Exception) as exc_info:
                 service.get_image_info('test.png')
             
-            assert '获取图片信息失败' in str(exc_info.value)
+            assert 'Failed to get image info' in str(exc_info.value)
 
 
 class TestModuleLevelFunctions:
-    """模块级函数测试"""
+    """Module Level Functions Tests"""
 
     @patch('app.services.ocr_service.OCRService.extract_text_from_image')
     @patch('app.services.ocr_service.get_ocr_service')
     def test_module_extract_text_from_image(self, mock_get_service, mock_extract):
-        """测试模块级 extract_text_from_image 函数"""
+        """Test module level extract_text_from_image function"""
         mock_service = MagicMock()
         mock_get_service.return_value = mock_service
         mock_extract.return_value = 'Test'
@@ -305,7 +296,7 @@ class TestModuleLevelFunctions:
     @patch('app.services.ocr_service.OCRService.extract_text_from_bytes')
     @patch('app.services.ocr_service.get_ocr_service')
     def test_module_extract_text_from_bytes(self, mock_get_service, mock_extract):
-        """测试模块级 extract_text_from_bytes 函数"""
+        """Test module level extract_text_from_bytes function"""
         mock_service = MagicMock()
         mock_get_service.return_value = mock_service
         mock_extract.return_value = 'Test'
@@ -318,12 +309,12 @@ class TestModuleLevelFunctions:
 
 
 class TestLanguageHandling:
-    """语言处理测试"""
+    """Language Handling Tests"""
 
     @patch('pytesseract.image_to_string')
     @patch('app.services.ocr_service.Image.open')
     def test_chinese_language_recognition(self, mock_image_open, mock_ocr):
-        """测试中文识别"""
+        """Test Chinese language recognition"""
         mock_img = MagicMock()
         mock_image_open.return_value = mock_img
         mock_ocr.return_value = '你好世界'
@@ -338,7 +329,7 @@ class TestLanguageHandling:
     @patch('pytesseract.image_to_string')
     @patch('app.services.ocr_service.Image.open')
     def test_english_language_recognition(self, mock_image_open, mock_ocr):
-        """测试英文识别"""
+        """Test English language recognition"""
         mock_img = MagicMock()
         mock_image_open.return_value = mock_img
         mock_ocr.return_value = 'Hello World'
@@ -353,7 +344,7 @@ class TestLanguageHandling:
     @patch('pytesseract.image_to_string')
     @patch('app.services.ocr_service.Image.open')
     def test_multilanguage_recognition(self, mock_image_open, mock_ocr):
-        """测试多语言识别"""
+        """Test multi-language recognition"""
         mock_img = MagicMock()
         mock_image_open.return_value = mock_img
         mock_ocr.return_value = '会议 Meeting'
@@ -367,12 +358,12 @@ class TestLanguageHandling:
 
 
 class TestErrorHandling:
-    """错误处理测试"""
+    """Error Handling Tests"""
 
     @patch('pytesseract.image_to_string')
     @patch('app.services.ocr_service.Image.open')
     def test_image_open_exception(self, mock_image_open, mock_ocr):
-        """测试图片打开异常"""
+        """Test image opening exception"""
         mock_image_open.side_effect = Exception('Cannot open image')
         
         with patch('pathlib.Path.exists', return_value=True):
@@ -380,183 +371,173 @@ class TestErrorHandling:
             with pytest.raises(Exception) as exc_info:
                 service.extract_text_from_image('test.png')
             
-            assert 'OCR 识别失败' in str(exc_info.value)
+            assert 'OCR recognition failed' in str(exc_info.value)
 
     def test_extract_with_corrupted_bytes(self):
-        """测试损坏的图片字节流"""
+        """Test corrupted image bytes stream"""
         service = OCRService()
         corrupted_bytes = b'\x89PNG\r\n\x1a\n' + b'corrupted'
         
         with pytest.raises(Exception):
             service.extract_text_from_bytes(corrupted_bytes)
 
-
 class TestRealImageRecognition:
-    """真实图片识别测试"""
+    """Real Image Recognition Tests"""
     
     def test_recognize_real_image_from_file(self):
-        """
-        测试从真实图片文件识别文本
-        
-        此测试使用 tests/image 目录中的真实图片
-        并将识别结果打印到控制台
-        """
-        # 获取测试图片路径
+        """Test real image recognition from file"""
+        # Get test image path
         test_image_dir = Path(__file__).parent / "image"
         
-        # 查找第一个 PNG 或 JPG 文件
+        # Find first PNG or JPG file
         image_files = list(test_image_dir.glob("*.png")) + list(test_image_dir.glob("*.jpg"))
         
         if not image_files:
-            pytest.skip("没有找到测试图片文件")
+            pytest.skip("No test image files found")
         
         image_path = image_files[0]
         print(f"\n\n{'='*60}")
-        print(f"测试图片: {image_path.name}")
-        print(f"完整路径: {image_path}")
+        print(f"Test image: {image_path.name}")
+        print(f"Full path: {image_path}")
         print(f"{'='*60}\n")
         
-        # 检查 Tesseract 是否可用
+        # Check if Tesseract is available
         service = OCRService()
         if not service.is_tesseract_available():
-            pytest.skip("Tesseract OCR 未安装，无法运行此测试")
+            pytest.skip("Tesseract OCR not installed, cannot run this test")
         
         try:
-            # 执行 OCR 识别
-            print("⏳ 正在识别文本...")
+            # Execute OCR recognition
+            print("⏳ Recognizing text...")
             text = service.extract_text_from_image(str(image_path))
             
-            # 打印识别结果
-            print(f"\u2713 识别成功！")
-            print(f"\n识别结果:")
+            # Print recognition result
+            print(f"\u2713 Recognition successful!")
+            print(f"\nRecognition result:")
             print(f"{'-'*60}")
             print(text)
             print(f"{'-'*60}\n")
             
-            # 打印文本统计信息
+            # Print text statistics
             lines = text.strip().split('\n')
-            print(f"📊 统计信息:")
-            print(f"  - 总字符数: {len(text)}")
-            print(f"  - 总行数: {len(lines)}")
-            print(f"  - 平均行长: {len(text) // len(lines) if lines else 0}")
+            print(f"📊 Statistics:")
+            print(f"  - Total characters: {len(text)}")
+            print(f"  - Total lines: {len(lines)}")
+            print(f"  - Average line length: {len(text) // len(lines) if lines else 0}")
             print(f"\n{'='*60}\n")
             
-            # 断言识别到了文本
-            assert len(text) > 0, "OCR 未识别到任何文本"
+            # Assert text was recognized
+            assert len(text) > 0, "OCR did not recognize any text"
             
         except Exception as e:
-            print(f"\n\u2718 识别失败: {str(e)}\n")
+            print(f"\n\u2718 Recognition failed: {str(e)}\n")
             raise
     
     def test_recognize_real_image_from_bytes(self):
         """
-        测试从真实图片字节流识别文本
+        Test real image recognition from bytes stream
         
-        此测试读取 tests/image 目录中的真实图片并转换为字节流
+        This test reads real images from tests/image directory and converts to bytes stream
         """
-        # 获取测试图片路径
+        # Get test image path
         test_image_dir = Path(__file__).parent / "image"
         
-        # 查找第一个 PNG 或 JPG 文件
+        # Find first PNG or JPG file
         image_files = list(test_image_dir.glob("*.png")) + list(test_image_dir.glob("*.jpg"))
         
         if not image_files:
-            pytest.skip("没有找到测试图片文件")
+            pytest.skip("No test image files found")
         
         image_path = image_files[0]
         print(f"\n\n{'='*60}")
-        print(f"测试字节流识别: {image_path.name}")
+        print(f"Test bytes stream recognition: {image_path.name}")
         print(f"{'='*60}\n")
         
-        # 检查 Tesseract 是否可用
+        # Check if Tesseract is available
         service = OCRService()
         if not service.is_tesseract_available():
-            pytest.skip("Tesseract OCR 未安装，无法运行此测试")
+            pytest.skip("Tesseract OCR not installed, cannot run this test")
         
         try:
-            # 读取图片文件为字节流
+            # Read image file as bytes stream
             with open(image_path, 'rb') as f:
                 image_bytes = f.read()
             
-            print(f"📁 文件大小: {len(image_bytes)} bytes")
-            print(f"⏳ 正在识别文本...\n")
+            print(f"📁 File size: {len(image_bytes)} bytes")
+            print(f"⏳ Recognizing text...\n")
             
-            # 执行 OCR 识别
+            # Execute OCR recognition
             text = service.extract_text_from_bytes(image_bytes)
             
-            # 打印识别结果
-            print(f"\u2713 识别成功！")
-            print(f"\n识别结果:")
+            # Print recognition result
+            print(f"\u2713 Recognition successful!")
+            print(f"\nRecognition result:")
             print(f"{'-'*60}")
             print(text)
             print(f"{'-'*60}\n")
             
-            # 断言识别到了文本
-            assert len(text) > 0, "OCR 未识别到任何文本"
+            # Assert text was recognized
+            assert len(text) > 0, "OCR did not recognize any text"
             
         except Exception as e:
-            print(f"\n\u2718 识别失败: {str(e)}\n")
+            print(f"\n\u2718 Recognition failed: {str(e)}\n")
             raise
     
     def test_recognize_real_image_get_info(self):
         """
-        获取真实图片的详细信息和 OCR 数据
+        Get detailed information and OCR data for real image
         
-        此测试获取并打印图片的详细信息和 OCR 识别的详细数据
+        This test retrieves and prints detailed image information and OCR recognition data
         """
-        # 获取测试图片路径
+        # Get test image path
         test_image_dir = Path(__file__).parent / "image"
         
-        # 查找第一个 PNG 或 JPG 文件
+        # Find first PNG or JPG file
         image_files = list(test_image_dir.glob("*.png")) + list(test_image_dir.glob("*.jpg"))
         
         if not image_files:
-            pytest.skip("没有找到测试图片文件")
+            pytest.skip("No test image files found")
         
         image_path = image_files[0]
         print(f"\n\n{'='*60}")
-        print(f"获取图片详细信息: {image_path.name}")
+        print(f"Get detailed image info: {image_path.name}")
         print(f"{'='*60}\n")
         
-        # 检查 Tesseract 是否可用
+        # Check if Tesseract is available
         service = OCRService()
         if not service.is_tesseract_available():
-            pytest.skip("Tesseract OCR 未安装，无法运行此测试")
+            pytest.skip("Tesseract OCR not installed, cannot run this test")
         
         try:
-            # 获取图片信息
-            print("⏳ 正在获取图片信息...")
+            # Get image info
+            print("⏳ Getting image information...")
             info = service.get_image_info(str(image_path))
             
-            # 打印图片信息
-            print(f"\n\u2713 获取成功！")
-            print(f"\n📷 图片基本信息:")
-            print(f"  - 尺寸: {info['image_size']}")
-            print(f"  - 格式: {info['image_format']}")
-            print(f"  - 色彩模式: {info['image_mode']}")
+            # Print image info
+            print(f"\n\u2713 Success!")
+            print(f"\n📷 Image basic information:")
+            print(f"  - Size: {info['image_size']}")
+            print(f"  - Format: {info['image_format']}")
+            print(f"  - Color mode: {info['image_mode']}")
             
-            # 打印 OCR 数据摘要
+            # Print OCR data summary
             ocr_data = info['ocr_data']
-            print(f"\n🔍 OCR 识别数据摘要:")
+            print(f"\n🔍 OCR recognition data summary:")
             
             if 'text' in ocr_data and ocr_data['text']:
-                # 过滤出非空的文本
+                # Filter non-empty text
                 texts = [t for t in ocr_data['text'] if t.strip()]
-                print(f"  - 识别的词数: {len(texts)}")
-                print(f"  - 识别的词列表: {texts[:10]}")  # 显示前 10 个词
+                print(f"  - Words recognized: {len(texts)}")
+                print(f"  - Word list: {texts[:10]}")  # Show first 10 words
             
             if 'conf' in ocr_data:
                 confs = [c for c in ocr_data['conf'] if c > 0]
                 if confs:
                     avg_conf = sum(confs) / len(confs)
-                    print(f"  - 平均置信度: {avg_conf:.2f}%")
+                    print(f"  - Average confidence: {avg_conf:.2f}%")
             
             print(f"\n{'='*60}\n")
             
         except Exception as e:
-            print(f"\n\u2718 获取信息失败: {str(e)}\n")
+            print(f"\n\u2718 Failed to get info: {str(e)}\n")
             raise
-
-
-if __name__ == '__main__':
-    pytest.main([__file__, '-v', '--tb=short'])

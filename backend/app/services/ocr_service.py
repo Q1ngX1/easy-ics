@@ -127,8 +127,8 @@ class OCRService:
             return text.strip()
             
         except Exception as e:
-            logger.error(f"OCR recognize failure: {str(e)}")
-            raise Exception(f"OCR recognize failure: {str(e)}")
+            logger.error(f"OCR recognition failed: {str(e)}")
+            raise Exception(f"OCR recognition failed: {str(e)}")
 
     def extract_text_from_image(
         self, 
@@ -167,21 +167,22 @@ class OCRService:
         except FileNotFoundError:
             raise
         except Exception as e:
-            logger.error(f"OCR recognize failed: {str(e)}")
-            raise Exception(f"OCR recognize failed: {str(e)}")
+            logger.error(f"OCR recognition failed: {str(e)}")
+            raise Exception(f"OCR recognition failed: {str(e)}")
     
     def get_image_info(self, image_path: str) -> Dict[str, Any]:
         """
-        获取图片信息和 OCR 识别数据
+        Get image information and OCR recognition data
+        
         Args:
-            image_path: 图片文件路径
+            image_path: Path to image file
             
         Returns:
-            包含图片信息和识别数据的字典
+            Dictionary containing image information and recognition data
         """
         try:
             if not Path(image_path).exists():
-                raise FileNotFoundError(f"图片文件不存在: {image_path}")
+                raise FileNotFoundError(f"Image file not found: {image_path}")
             
             image = Image.open(image_path)
             
@@ -199,8 +200,8 @@ class OCRService:
             }
             
         except Exception as e:
-            logger.error(f"Unable to get image: {str(e)}")
-            raise Exception(f"Unable to get image: {str(e)}")
+            logger.error(f"Failed to get image info: {str(e)}")
+            raise Exception(f"Failed to get image info: {str(e)}")
     
     def is_tesseract_available(self) -> bool:
         """
