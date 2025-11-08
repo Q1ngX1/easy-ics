@@ -1,6 +1,5 @@
 import { useState, useEffect, useRef} from 'react'
 import '../styles/pages.css'
-import '../styles/checkbox.css'
 import { uploadImage, uploadText, downloadICS, triggerDownload } from '../services/api'
 
 export default function Home() {
