@@ -1,6 +1,3 @@
-/* ========== 通用样式 ========== */
-
-/* 页面内容通用 */
 .page-content {
   animation: fadeIn 0.5s ease-in-out;
 }
@@ -16,7 +13,6 @@
   }
 }
 
-/* 页面标题 */
 .page-content h1 {
   font-size: 2.5rem;
   color: #333;
@@ -36,7 +32,6 @@
   padding-bottom: 0.5rem;
 }
 
-/* 超链接样式 */
 .link {
   color: #667eea;
   text-decoration: none;
@@ -49,7 +44,6 @@
   text-decoration: underline;
 }
 
-/* ========== 响应式设计 ========== */
 @media (max-width: 768px) {
   .page-content h1 {
     font-size: 2rem;
