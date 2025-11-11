@@ -88,6 +88,54 @@ export const uploadImage = async (file, lang = "chi_sim+eng") => {
 };
 
 /**
+ * Upload multiple images and extract text via OCR (batch)
+ * Args:
+ *   files: Array of File objects
+ *   lang: Optional OCR language (default: 'chi_sim+eng')
+ * Returns: {
+ *   success,
+ *   results: [{ filename, success, text, length, message }],
+ *   total,
+ *   successful,
+ *   failed,
+ *   combined_text,
+ *   combined_length
+ * }
+ */
+export const uploadImages = async (files, lang = "chi_sim+eng") => {
+  try {
+    if (!files || files.length === 0) {
+      throw new Error("No files provided");
+    }
+
+    const formData = new FormData();
+    for (const file of files) {
+      formData.append("files", file);
+    }
+
+    const response = await fetch(
+      `${API_BASE_URL}/api/upload/imgs?lang=${encodeURIComponent(lang)}`,
+      {
+        method: "POST",
+        body: formData,
+      }
+    );
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(
+        errorData.detail || `Batch upload failed: ${response.status}`
+      );
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error("Upload images error:", error);
+    throw error;
+  }
+};
+
+/**
  * Upload text and parse events
  * Args:
  *   text: Plain text content to parse

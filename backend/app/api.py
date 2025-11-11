@@ -2,7 +2,8 @@
 API router definition
 
 - upload
-    - /api/upload/img: OCR image upload
+    - /api/upload/img: OCR single image upload
+    - /api/upload/imgs: OCR multiple images upload (batch)
     - /api/upload/text: Text parsing
     - /api/upload/patch: Future
 - /api/download_ics: Download ICS file
@@ -11,7 +12,7 @@ API router definition
 
 from fastapi import APIRouter, UploadFile, File, HTTPException, Query
 from fastapi.responses import StreamingResponse
-from typing import Optional
+from typing import Optional, List
 import logging
 from datetime import datetime
 
@@ -25,9 +26,6 @@ router = APIRouter()
 
 # ===== API =====
 
-@router.post("api/upload/basetime")
-async def set_timezone(timezone: dict):
-    pass
 
 @router.post("/api/upload/img")
 async def upload_img(
@@ -108,11 +106,153 @@ async def upload_img(
             detail=f"OCR failed: {str(e)}"
         )
 
+
+@router.post("/api/upload/imgs")
+async def upload_imgs(
+    files: List[UploadFile] = File(...),
+    lang: Optional[str] = Query("chi_sim+eng", description="OCR Language")
+):
+    """
+    Batch upload multiple images and extract text via OCR
+    
+    Args:
+        files: Multiple image files (PNG, JPG, JPEG, BMP, TIFF)
+        lang: OCR language (default: chi_sim+eng)
+        
+    Returns:
+        {
+            "success": bool,
+            "results": [
+                {
+                    "filename": str,
+                    "success": bool,
+                    "text": str,
+                    "length": int,
+                    "message": str
+                }
+            ],
+            "total": int,
+            "successful": int,
+            "failed": int,
+            "combined_text": str,
+            "combined_length": int
+        }
+        
+    Example:
+        ```bash
+        curl -X POST "http://localhost:8000/api/upload/imgs" \\
+             -F "files=@image1.png" \\
+             -F "files=@image2.png" \\
+             -H "accept: application/json"
+        ```
+    """
+    try:
+        if not files or len(files) == 0:
+            raise HTTPException(status_code=400, detail="No files provided")
+        
+        from app.services.ocr_service import OCRService
+        
+        ocr_service = OCRService(lang=lang)
+        
+        if not ocr_service.is_tesseract_available():
+            raise HTTPException(
+                status_code=503,
+                detail="Tesseract OCR is not installed or unavailable"
+            )
+        
+        results = []
+        combined_text_parts = []
+        successful_count = 0
+        
+        for file in files:
+            # File type check
+            if not file.content_type or not file.content_type.startswith("image/"):
+                results.append({
+                    "filename": file.filename,
+                    "success": False,
+                    "text": "",
+                    "length": 0,
+                    "message": f"Unsupported file type: {file.content_type}"
+                })
+                continue
+            
+            try:
+                image_bytes = await file.read()
+                
+                if len(image_bytes) == 0:
+                    results.append({
+                        "filename": file.filename,
+                        "success": False,
+                        "text": "",
+                        "length": 0,
+                        "message": "Empty file"
+                    })
+                    continue
+                
+                text = ocr_service.extract_text_from_bytes(image_bytes)
+                
+                if not text or text.strip() == "":
+                    results.append({
+                        "filename": file.filename,
+                        "success": True,
+                        "text": "",
+                        "length": 0,
+                        "message": "Unable to detect text"
+                    })
+                    logger.warning(f"Unable to detect text: {file.filename}")
+                else:
+                    results.append({
+                        "filename": file.filename,
+                        "success": True,
+                        "text": text,
+                        "length": len(text),
+                        "message": "OCR success"
+                    })
+                    combined_text_parts.append(text)
+                    successful_count += 1
+                    logger.info(f"OCR success: {file.filename}, length: {len(text)}")
+                    
+            except Exception as e:
+                results.append({
+                    "filename": file.filename,
+                    "success": False,
+                    "text": "",
+                    "length": 0,
+                    "message": f"OCR failed: {str(e)}"
+                })
+                logger.error(f"OCR failed for {file.filename}: {str(e)}")
+        
+        combined_text = '\n'.join(combined_text_parts)
+        combined_length = len(combined_text)
+        failed_count = len(files) - successful_count
+        
+        logger.info(f"Batch OCR complete: {len(files)} total, {successful_count} successful, {failed_count} failed")
+        
+        return {
+            "success": True,
+            "results": results,
+            "total": len(files),
+            "successful": successful_count,
+            "failed": failed_count,
+            "combined_text": combined_text,
+            "combined_length": combined_length
+        }
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Batch OCR failed: {str(e)}", exc_info=True)
+        raise HTTPException(
+            status_code=500,
+            detail=f"Batch OCR failed: {str(e)}"
+        )
+
+
 @router.post("/api/upload/text")
 async def upload_text(
     text: str = Query(..., description="text content"),
     timezone: Optional[str] = Query(None, description="User timezone (IANA format)"),
-    lang: Optional[str] = Query("chi_sim+eng", description="OCR Language")
+    #lang: Optional[str] = Query("chi_sim+eng", description="OCR Language")
 ):
     """
     Args:
