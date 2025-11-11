@@ -6,7 +6,7 @@ import { uploadImage, uploadText, downloadICS, triggerDownload } from '../servic
  * Handles image upload, text input, API calls, and state management
  */
 export function useHome() {
-    const [image, setImage] = useState(null)
+    const [images, setImages] = useState([])
     const [text, setText] = useState('')
     const [dragActive, setDragActive] = useState(false)
     const [contextMenu, setContextMenu] = useState(null)
@@ -18,16 +18,36 @@ export function useHome() {
     const [locationInfo, setLocationInfo] = useState(null)
     const [timezoneInfo, setTimezoneInfo] = useState(null)
 
-    const hasImage = !!image
+    const hasImages = images.length > 0
     const hasText = text.trim().length > 0
-    const hasInput = hasImage || hasText
+    const hasInput = hasImages || hasText
 
     /**
-     * Handle image selection from file input
+     * Handle image selection from file input (supports multiple files)
      */
-    const handleImageChange = (file) => {
-        setImage(file)
-        setText('')
+    const handleImageChange = (newFiles) => {
+        // newFiles can be a single File or an array of Files
+        const filesToAdd = Array.isArray(newFiles) ? newFiles : [newFiles]
+        const validImages = filesToAdd.filter(f => f.type.startsWith('image/'))
+        
+        if (validImages.length > 0) {
+            setImages([...images, ...validImages])
+            setText('')
+        }
+    }
+
+    /**
+     * Remove a specific image from the list
+     */
+    const removeImage = (index) => {
+        setImages(images.filter((_, i) => i !== index))
+    }
+
+    /**
+     * Clear all images
+     */
+    const clearImages = () => {
+        setImages([])
     }
 
     /**
@@ -44,7 +64,7 @@ export function useHome() {
     }
 
     /**
-     * Handle file drop on drag-drop area
+     * Handle file drop on drag-drop area (supports multiple files)
      */
     const handleDrop = (e) => {
         e.preventDefault()
@@ -53,9 +73,9 @@ export function useHome() {
 
         const files = e.dataTransfer.files
         if (files && files.length > 0) {
-            const file = files[0]
-            if (file.type.startsWith('image/')) {
-                setImage(file)
+            const imageFiles = Array.from(files).filter(f => f.type.startsWith('image/'))
+            if (imageFiles.length > 0) {
+                setImages([...images, ...imageFiles])
                 setText('')
             }
         }
@@ -66,7 +86,7 @@ export function useHome() {
      */
     const handleClear = () => {
         setError(null)
-        setImage(null)
+        setImages([])
         setText('')
         setResult(null)
     }
@@ -125,21 +145,30 @@ export function useHome() {
                 setTimezoneInfo({ timezone, datetime })
             }
 
-            // Upload image and extract text via OCR
-            if (image) {
-                const uploadRes = await uploadImage(image)
-                if (!uploadRes.success) {
-                    throw new Error(uploadRes.message || 'Image upload failed')
+            // Upload images and extract text via OCR
+            if (images.length > 0) {
+                let allExtractedText = ''
+                
+                // Process each image
+                for (const image of images) {
+                    const uploadRes = await uploadImage(image)
+                    if (!uploadRes.success) {
+                        throw new Error(uploadRes.message || 'Image upload failed')
+                    }
+                    if (uploadRes.text && uploadRes.text.trim().length > 0) {
+                        allExtractedText += (allExtractedText ? '\n' : '') + uploadRes.text
+                    }
                 }
+                
                 // If text extracted, parse it to events
-                if (uploadRes.text && uploadRes.text.trim().length > 0) {
-                    const parseRes = await uploadText(uploadRes.text, timezoneInfo?.timezone)
+                if (allExtractedText.trim().length > 0) {
+                    const parseRes = await uploadText(allExtractedText, timezoneInfo?.timezone)
                     if (!parseRes.success) {
                         throw new Error(parseRes.message || 'Text parsing failed')
                     }
                     events = parseRes.events || []
                 } else {
-                    setError('No text detected in the image. Please try a clearer image.')
+                    setError('No text detected in the images. Please try clearer images.')
                     setLoading(false)
                     return
                 }
@@ -199,13 +228,14 @@ export function useHome() {
     }
 
     /**
-     * Paste image from clipboard
+     * Paste images from clipboard
      */
     const pasteFromClipboard = async () => {
         setContextMenu(null)
         try {
             if (navigator.clipboard && navigator.clipboard.read) {
                 const items = await navigator.clipboard.read()
+                const pastedFiles = []
                 for (const item of items) {
                     for (const type of item.types) {
                         if (type.startsWith('image/')) {
@@ -213,13 +243,16 @@ export function useHome() {
                             const file = new File([blob], 'pasted-image.' + type.split('/')[1], {
                                 type: blob.type,
                             })
-                            setImage(file)
-                            setText('')
-                            return
+                            pastedFiles.push(file)
                         }
                     }
                 }
-                alert('No image found in clipboard.')
+                if (pastedFiles.length > 0) {
+                    setImages((prevImages) => [...prevImages, ...pastedFiles])
+                    setText('')
+                } else {
+                    alert('No image found in clipboard.')
+                }
             } else {
                 alert(
                     'Paste from clipboard is not supported in this browser via right-click. Please focus the page and press Ctrl+V to paste the image.'
@@ -240,17 +273,20 @@ export function useHome() {
                 const items = e.clipboardData?.items
                 if (!items) return
 
+                const pastedFiles = []
                 for (let i = 0; i < items.length; i++) {
                     const item = items[i]
                     if (item.type && item.type.startsWith('image/')) {
                         const file = item.getAsFile()
                         if (file) {
-                            setImage(file)
-                            setText('')
-                            e.preventDefault()
-                            break
+                            pastedFiles.push(file)
                         }
                     }
+                }
+                if (pastedFiles.length > 0) {
+                    setImages((prevImages) => [...prevImages, ...pastedFiles])
+                    setText('')
+                    e.preventDefault()
                 }
             } catch (err) {
                 console.error('paste handling error', err)
@@ -295,7 +331,7 @@ export function useHome() {
 
     return {
         // State
-        image,
+        images,
         text,
         dragActive,
         contextMenu,
@@ -306,11 +342,13 @@ export function useHome() {
         locationInfo,
         useTimezone,
         timezoneInfo,
-        hasImage,
+        hasImages,
         hasText,
         hasInput,
         // Handlers
         handleImageChange,
+        removeImage,
+        clearImages,
         handleDrag,
         handleDrop,
         handleClear,
@@ -322,7 +360,6 @@ export function useHome() {
         handleTimezoneChange,
         // State setters
         setText,
-        setImage,
         setError,
         setResult,
     }

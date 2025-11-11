@@ -2,7 +2,7 @@ import PropTypes from 'prop-types'
 
 export default function TextInputField({
     text,
-    hasImage,
+    hasImages,
     loading,
     onChange,
 }) {
@@ -13,9 +13,9 @@ export default function TextInputField({
                 value={text}
                 onChange={onChange}
                 placeholder="Enter the text you want to recognize, dates, or any related information..."
-                className={`text-input ${hasImage ? 'disabled' : ''}`}
+                className={`text-input ${hasImages ? 'disabled' : ''}`}
                 rows="4"
-                disabled={hasImage || loading}
+                disabled={hasImages || loading}
             />
         </label>
     )
@@ -23,7 +23,7 @@ export default function TextInputField({
 
 TextInputField.propTypes = {
     text: PropTypes.string.isRequired,
-    hasImage: PropTypes.bool.isRequired,
+    hasImages: PropTypes.bool.isRequired,
     loading: PropTypes.bool.isRequired,
     onChange: PropTypes.func.isRequired,
 }
