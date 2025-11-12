@@ -31,30 +31,6 @@ export const checkHealth = async () => {
   }
 };
 
-export const uploadTime = async (timezone, time) => {
-  try {
-    const response = await fetch(`${API_BASE_URL}/api/upload/base_time`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        timezone: "Asia/Shanghai",
-        datetime,
-      }),
-    });
-
-    if (!response.ok) {
-      throw new Error(
-        `Upload time failed: ${response.status} ${response.statusText}`
-      );
-    }
-  } catch (error) {
-    console.error("Unable to upload time");
-  }
-  throw error;
-};
-
 /**
  * Upload image and extract text via OCR
  * Args:
