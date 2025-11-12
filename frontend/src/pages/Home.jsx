@@ -12,7 +12,7 @@ import {
 
 export default function Home() {
     const {
-        image,
+        images,
         text,
         dragActive,
         contextMenu,
@@ -23,10 +23,12 @@ export default function Home() {
         locationInfo,
         useTimezone,
         timezoneInfo,
-        hasImage,
+        hasImages,
         hasText,
         hasInput,
         handleImageChange,
+        removeImage,
+        clearImages,
         handleDrag,
         handleDrop,
         handleClear,
@@ -37,7 +39,6 @@ export default function Home() {
         handleLocationChange,
         handleTimezoneChange,
         setText,
-        setImage,
         setError,
         setResult,
     } = useHome()
@@ -69,7 +70,7 @@ export default function Home() {
                 onDownload={handleDownloadICS}
                 onClose={() => {
                     setResult(null)
-                    setImage(null)
+                    clearImages()
                     setText('')
                 }}
             />
@@ -77,7 +78,7 @@ export default function Home() {
             <form onSubmit={handleStart} className="simple-form">
                 {/* Image Upload Area Component */}
                 <ImageUploadArea
-                    image={image}
+                    images={images}
                     hasText={hasText}
                     loading={loading}
                     dragActive={dragActive}
@@ -86,6 +87,7 @@ export default function Home() {
                     onDragOver={handleDrag}
                     onDrop={handleDrop}
                     onImageChange={handleImageChange}
+                    onRemoveImage={removeImage}
                     onContextMenu={handleContextMenu}
                     contextMenu={contextMenu}
                     onPasteFromClipboard={pasteFromClipboard}
@@ -94,13 +96,13 @@ export default function Home() {
                 {/* Text Input Field Component */}
                 <TextInputField
                     text={text}
-                    hasImage={hasImage}
+                    hasImages={hasImages}
                     loading={loading}
                     onChange={(e) => {
                         const v = e.target.value
                         setText(v)
                         if (v.trim().length > 0) {
-                            setImage(null)
+                            clearImages()
                         }
                     }}
                 />

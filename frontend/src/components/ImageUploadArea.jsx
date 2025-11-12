@@ -2,7 +2,7 @@ import { useRef } from 'react'
 import PropTypes from 'prop-types'
 
 export default function ImageUploadArea({
-    image,
+    images,
     hasText,
     loading,
     dragActive,
@@ -11,6 +11,7 @@ export default function ImageUploadArea({
     onDragOver,
     onDrop,
     onImageChange,
+    onRemoveImage,
     onContextMenu,
     contextMenu,
     onPasteFromClipboard,
@@ -31,25 +32,45 @@ export default function ImageUploadArea({
                 type="file"
                 id="image-input"
                 accept="image/*"
+                multiple
                 onChange={(e) => {
-                    const file = e.target.files?.[0]
-                    if (file && file.type.startsWith('image/')) {
-                        onImageChange(file)
+                    const files = Array.from(e.target.files || [])
+                    const validImages = files.filter((file) => file.type.startsWith('image/'))
+                    if (validImages.length > 0) {
+                        onImageChange(validImages)
                     }
                 }}
                 className="file-input"
                 disabled={hasText || loading}
             />
             <label htmlFor="image-input" className="drag-drop-label">
-                {image ? (
+                {images.length > 0 ? (
                     <>
-                        <span className="file-name">✓ {image.name}</span>
+                        <span className="file-count">✓ {images.length} image{images.length !== 1 ? 's' : ''} selected</span>
+                        <div className="image-list">
+                            {images.map((img, index) => (
+                                <div key={index} className="image-item">
+                                    <span className="image-name">{img.name}</span>
+                                    <button
+                                        type="button"
+                                        className="remove-image-btn"
+                                        onClick={(e) => {
+                                            e.stopPropagation()
+                                            onRemoveImage(index)
+                                        }}
+                                        title="Remove image"
+                                    >
+                                        ✕
+                                    </button>
+                                </div>
+                            ))}
+                        </div>
                     </>
                 ) : (
                     <>
                         <span className="drag-drop-icon">📁</span>
                         <span className="drag-drop-text">
-                            {hasText ? 'Text input already selected' : 'Drag image here, paste (Ctrl+V/Command+V) or click to select'}
+                            {hasText ? 'Text input already selected' : 'Drag images here, paste (Ctrl+V/Command+V) or click to select'}
                         </span>
                     </>
                 )}
@@ -58,7 +79,7 @@ export default function ImageUploadArea({
             {contextMenu && (
                 <div className="context-menu" style={{ left: contextMenu.x, top: contextMenu.y }}>
                     <div className="context-menu-item" onClick={onPasteFromClipboard}>
-                        Paste image
+                        Paste image(s)
                     </div>
                 </div>
             )}
@@ -67,7 +88,7 @@ export default function ImageUploadArea({
 }
 
 ImageUploadArea.propTypes = {
-    image: PropTypes.object,
+    images: PropTypes.arrayOf(PropTypes.object).isRequired,
     hasText: PropTypes.bool.isRequired,
     loading: PropTypes.bool.isRequired,
     dragActive: PropTypes.bool.isRequired,
@@ -76,6 +97,7 @@ ImageUploadArea.propTypes = {
     onDragOver: PropTypes.func.isRequired,
     onDrop: PropTypes.func.isRequired,
     onImageChange: PropTypes.func.isRequired,
+    onRemoveImage: PropTypes.func.isRequired,
     onContextMenu: PropTypes.func.isRequired,
     contextMenu: PropTypes.object,
     onPasteFromClipboard: PropTypes.func.isRequired,
