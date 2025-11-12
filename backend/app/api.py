@@ -5,7 +5,6 @@ API router definition
     - /api/upload/img: OCR single image upload
     - /api/upload/imgs: OCR multiple images upload (batch)
     - /api/upload/text: Text parsing
-    - /api/upload/patch: Future
 - /api/download_ics: Download ICS file
 - /api/check_health: Health check
 """
@@ -87,7 +86,7 @@ async def upload_img(
                 "message": "Unable to detect text"
             }
         
-        logger.info(f"OCR success: {file.filename}, length: {len(text)}")
+        logger.info(f"Upload file success: {file.filename}, length: {len(text)}")
         
         return {
             "success": True,
