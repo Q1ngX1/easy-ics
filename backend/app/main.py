@@ -35,10 +35,6 @@ def read_root():
         "health": "/health"
     }
 
-@app.get("/health")
-def health_check():
-    return {"status": "ok"}
-
 
 def main():
     pass
