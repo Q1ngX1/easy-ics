@@ -11,7 +11,7 @@ class ParserService:
     def __init__(self):
         pass
 
-    def parse(self, text: str, timezone: Optional[str] = None) -> Event:
+    def parse(self, text: str, timezone: Optional[str] = None) -> List:
         """
         Parse text content and extract event information
         
