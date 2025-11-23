@@ -22,52 +22,34 @@ class ICSService:
     METHOD = "PUBLISH"
     
     def __init__(self):
-        """初始化 ICS 服务"""
         self.timezone = timezone.utc
     
     def generate_ics(self, events: List[Event]) -> str:
-        """
-        生成 ICS 文件内容
-        
-        Args:
-            events: Event 对象列表
-            
-        Returns:
-            ICS 格式字符串
-            
+        """   
         Raises:
-            ValueError: 当事件列表为空时抛出异常
+            ValueError: when event list is empty
         """
         if not events:
-            raise ValueError("事件列表不能为空")
+            raise ValueError("Event list cannot be empty")
         
         if not isinstance(events, list):
-            raise ValueError("events 必须是列表类型")
+            raise ValueError("events must be a list type")
         
-        # 构建 ICS 文件
         ics_lines = self._build_vcalendar_header()
-        
-        # 添加事件
+
         for event in events:
             try:
                 vevent = self._build_vevent(event)
                 ics_lines.extend(vevent)
             except Exception as e:
-                logger.error(f"构建事件失败: {str(e)}", exc_info=True)
-                raise ValueError(f"构建事件失败: {str(e)}")
+                logger.error(f"Failed constructing events: {str(e)}", exc_info=True)
+                raise ValueError(f"Failed constructing events: {str(e)}")
         
-        # 添加结尾
         ics_lines.append("END:VCALENDAR")
         
         return "\r\n".join(ics_lines)
     
     def _build_vcalendar_header(self) -> List[str]:
-        """
-        构建 VCALENDAR 头部
-        
-        Returns:
-            ICS 头部行列表
-        """
         now = datetime.now(self.timezone).strftime("%Y%m%dT%H%M%SZ")
         
         return [
@@ -91,57 +73,44 @@ class ICSService:
         ]
     
     def _build_vevent(self, event: Event) -> List[str]:
-        """
-        构建单个 VEVENT 块
-        
-        Args:
-            event: Event 对象
-            
-        Returns:
-            VEVENT 内容行列表
-        """
         vevent = ["BEGIN:VEVENT"]
         
-        # 生成 UID (唯一标识符)
+        # generate UID
         uid = self._generate_uid(event)
         vevent.append(f"UID:{uid}")
         
-        # 时间戳
+        # Time stamp
         dtstamp = datetime.now(self.timezone).strftime("%Y%m%dT%H%M%SZ")
         vevent.append(f"DTSTAMP:{dtstamp}")
         
-        # 开始时间
         dtstart = self._format_datetime(event.start_time)
         vevent.append(f"DTSTART:{dtstart}")
-        
-        # 结束时间
+
         dtend = self._format_datetime(event.end_time)
         vevent.append(f"DTEND:{dtend}")
-        
-        # 创建时间和修改时间
+
         created = datetime.now(self.timezone).strftime("%Y%m%dT%H%M%SZ")
         vevent.append(f"CREATED:{created}")
         vevent.append(f"LAST-MODIFIED:{created}")
-        
-        # 标题 (SUMMARY)
+
         vevent.append(f"SUMMARY:{self._escape_text(event.title)}")
         
-        # 地点 (LOCATION)
+
         if event.location:
             vevent.append(f"LOCATION:{self._escape_text(event.location)}")
         
-        # 描述 (DESCRIPTION)
+
         if event.description:
             vevent.append(f"DESCRIPTION:{self._escape_text(event.description)}")
         
-        # 状态 (STATUS) - 默认为 CONFIRMED
+
         vevent.append("STATUS:CONFIRMED")
         
-        # 优先级 (PRIORITY)
+
         priority_value = self._get_priority_value(event)
         vevent.append(f"PRIORITY:{priority_value}")
         
-        # 提醒 (VALARM - 可选)
+
         if event.reminder_minutes is not None and event.reminder_minutes > 0:
             alarm = self._build_valarm(event.reminder_minutes)
             vevent.extend(alarm)

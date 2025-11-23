@@ -1,13 +1,28 @@
 /**
  * API Service - handles all backend communication
  * Base URL: http://localhost:8000 (update as needed for production)
+ *
+ * Endpoints:
+ * - GET  /api/check_health - Health check
+ * - POST /api/upload - OCR image upload (single or multiple)
+ * - POST /api/upload/text - Parse text and extract events
+ * - POST /api/download_ics - Generate and download ICS file
  */
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:8000";
 
 /**
  * Health check endpoint
- * Returns: { status, tesseract_available, message }
+ * Verifies backend service availability and Tesseract OCR status
+ *
+ * Returns:
+ * {
+ *   status: 'healthy' | 'unhealthy',
+ *   tesseract_available: boolean,
+ *   message: string
+ * }
+ *
+ * @throws {Error} If health check fails
  */
 export const checkHealth = async () => {
   try {
@@ -35,13 +50,32 @@ export const checkHealth = async () => {
  * Upload image(s) and extract text via OCR
  * Unified endpoint that automatically handles both single and multiple file uploads
  *
- * Args:
- *   files: Single File object OR Array of File objects
- *   lang: Optional OCR language (default: 'chi_sim+eng')
+ * @param {File|File[]} files - Single File object OR Array of File objects
+ * @param {string} [lang='chi_sim+eng'] - OCR language (supports multiple: 'chi_sim+eng', 'chi_tra', 'eng', etc.)
  *
- * Returns:
- *   Single file: { success, text, filename, length, message }
- *   Multiple files: { success, results, total, successful, failed, combined_text, combined_length }
+ * @returns {Promise<Object>}
+ * Single file response:
+ * {
+ *   success: boolean,
+ *   text: string,
+ *   filename: string,
+ *   length: number,
+ *   message: string
+ * }
+ *
+ * Multiple files response:
+ * {
+ *   success: boolean,
+ *   results: Array,           // Result for each file
+ *   total: number,            // Total files uploaded
+ *   successful: number,       // Successfully processed
+ *   failed: number,           // Failed to process
+ *   combined_text: string,    // All extracted text combined
+ *   combined_length: number,  // Total characters
+ *   message: string
+ * }
+ *
+ * @throws {Error} If upload fails or files are invalid
  */
 export const uploadImages = async (files, lang = "chi_sim+eng") => {
   try {
@@ -93,6 +127,15 @@ export const uploadImages = async (files, lang = "chi_sim+eng") => {
  *   icsBlob: Blob object from downloadICS
  *   filename: Optional filename (default: 'calendar.ics')
  */
+/**
+ * Trigger browser download for ICS file
+ * Creates an object URL and programmatically triggers download
+ *
+ * @param {Blob} icsBlob - ICS file content as Blob
+ * @param {string} [filename='calendar.ics'] - Downloaded filename
+ *
+ * @throws {Error} If download trigger fails
+ */
 export const triggerDownload = (icsBlob, filename = "calendar.ics") => {
   try {
     const url = URL.createObjectURL(icsBlob);
@@ -110,12 +153,31 @@ export const triggerDownload = (icsBlob, filename = "calendar.ics") => {
 };
 
 /**
- * Upload text and parse events
- * Args:
- *   text: Plain text content to parse
- *   timezone: Optional timezone (default: null, use server default)
- *   lang: Optional OCR language (default: 'chi_sim+eng')
- * Returns: { success, events, count, timezone, message }
+ * Parse text content and extract calendar events
+ * Supports multi-language text parsing (English, Chinese, etc.)
+ *
+ * @param {string} text - Plain text content to parse (required)
+ * @param {string} [timezone=null] - IANA timezone string (e.g., 'Asia/Shanghai', 'UTC')
+ * @param {string} [lang='chi_sim+eng'] - OCR language setting (not used in text parsing, kept for compatibility)
+ *
+ * @returns {Promise<Object>}
+ * {
+ *   success: boolean,
+ *   events: Array<{
+ *     title: string,
+ *     start_time: string (ISO format),
+ *     end_time: string (ISO format),
+ *     location: string | null,
+ *     description: string | null,
+ *     duration_hours: number,
+ *     priority: 'low' | 'medium' | 'high'
+ *   }>,
+ *   count: number,            // Number of events extracted
+ *   timezone: string,
+ *   message: string
+ * }
+ *
+ * @throws {Error} If text parsing fails or text is empty
  */
 export const uploadText = async (
   text,
@@ -155,10 +217,31 @@ export const uploadText = async (
 };
 
 /**
- * Download ICS file from events
- * Args:
- *   events: Array of event objects
- * Returns: Blob object for download
+ * Generate and download ICS calendar file
+ * Converts event objects to ICS format and triggers download
+ *
+ * @param {Array<Object>} events - Array of event objects with required fields:
+ * {
+ *   title: string,
+ *   start_time: string (ISO 8601 format: 'YYYY-MM-DDTHH:mm:ss'),
+ *   end_time: string (ISO 8601 format: 'YYYY-MM-DDTHH:mm:ss'),
+ *   location?: string,
+ *   description?: string
+ * }
+ *
+ * @returns {Promise<Blob>} ICS file blob
+ *
+ * @example
+ * const events = [{
+ *   title: 'Team Meeting',
+ *   start_time: '2025-11-22T14:00:00',
+ *   end_time: '2025-11-22T15:00:00',
+ *   location: 'Conference Room A',
+ *   description: 'Weekly team sync'
+ * }];
+ * const blob = await downloadICS(events);
+ *
+ * @throws {Error} If no events provided or download fails
  */
 export const downloadICS = async (events) => {
   try {
@@ -181,7 +264,12 @@ export const downloadICS = async (events) => {
       );
     }
 
-    return await response.blob();
+    const blob = await response.blob();
+
+    // Trigger download
+    triggerDownload(blob, "calendar.ics");
+
+    return blob;
   } catch (error) {
     console.error("Download ICS error:", error);
     throw error;

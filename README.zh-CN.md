@@ -8,4 +8,4 @@ Easy ICS 是一款轻量级应用程序，可将图像和自然语言文本中�
 
 ## License
 
-MIT License - 详情请参阅 LICENSE 文件。
+MIT License

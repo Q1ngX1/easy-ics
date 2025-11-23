@@ -1,11 +1,21 @@
 """
 API router definition
 
-- upload
-    - /api/upload: Unified OCR image upload (handles single or multiple images)
-    - /api/upload/text: Text parsing
-- /api/download_ics: Download ICS file
-- /api/check_health: Health check
+Endpoints:
+- Health Check:
+    - GET  /api/check_health: Service health status and OCR availability
+
+- Image Processing (OCR):
+    - POST /api/upload: Unified OCR image upload (single or multiple images)
+
+- Text Processing:
+    - POST /api/upload/text: Parse text and extract calendar events
+
+- ICS Generation:
+    - POST /api/download_ics: Generate and download ICS calendar file
+
+Authentication: None (public API)
+Rate Limiting: None (consider adding for production)
 """
 
 from fastapi import APIRouter, UploadFile, File, HTTPException, Query
@@ -232,53 +242,85 @@ async def upload(
 async def upload_text(
     text: str = Query(..., description="text content"),
     timezone: Optional[str] = Query(None, description="User timezone (IANA format)"),
-    #lang: Optional[str] = Query("chi_sim+eng", description="OCR Language")
 ):
     """
+    Parse text content and extract calendar events.
+    
+    Workflow:
+    1. Validate input text
+    2. Clean and normalize text
+    3. Extract date/time information
+    4. Extract title, location, description
+    5. Determine priority and other event details
+    6. Return parsed Event objects
+    
     Args:
-        text: plain text
+        text: plain text content containing event information
         timezone: Optional user timezone (e.g., 'Asia/Shanghai')
-        lang: default: chi_sim+eng
         
     Returns:
         {
             "success": bool,
-            "events": List[dict],  
-            "count": int,
-            "timezone": str,
+            "events": List[dict],  # List of parsed events
+            "count": int,          # Number of events extracted
+            "timezone": str,       # User timezone
             "message": str
         }
     
+    Example:
+        ```bash
+        curl -X POST "http://localhost:8000/api/upload/text" \\
+          -H "Content-Type: application/json" \\
+          -d '{"text": "Meeting on 2025-11-22 at 14:30 in Conference Room A", "timezone": "Asia/Shanghai"}'
+        ```
     """
     try:
+        # Step 1: Validate input
         if not text or text.strip() == "":
             raise HTTPException(
                 status_code=400,
                 detail="Content cannot be empty"
             )
         
-        from app.services.parser_service import ParserService
+        logger.info(f"Starting text parsing workflow - Input length: {len(text)}")
         
-        parser = ParserService()
-        event = parser.parse(text, timezone=timezone)
+        # Step 2: Initialize parser service
+        from app.services.parser_service import get_parser_service
+        parser_service = get_parser_service()
         
-        logger.info(f"Parsing success, timezone: {timezone or 'default'}")
+        # Step 3: Parse text and extract events
+        events = parser_service.parse(text, timezone=timezone)
+        
+        if not events:
+            logger.warning("No events extracted from text")
+            return {
+                "success": False,
+                "events": [],
+                "count": 0,
+                "timezone": timezone or "default",
+                "message": "No events could be extracted from the provided text"
+            }
+        
+        # Step 4: Convert Event objects to dictionaries for JSON response
+        events_dict = [event.to_dict() for event in events]
+        
+        logger.info(f"Text parsing success - Extracted {len(events)} event(s), timezone: {timezone or 'default'}")
         
         return {
             "success": True,
-            "events": [event.to_dict()],
-            "count": 1,
-            "timezone": timezone,
-            "message": "Text parsing success"
+            "events": events_dict,
+            "count": len(events),
+            "timezone": timezone or "default",
+            "message": f"Successfully extracted {len(events)} event(s) from text"
         }
         
     except HTTPException:
         raise
-    except NotImplementedError as e:
-        logger.warning(f"Text parsing service undeveloped: {str(e)}")
+    except ValueError as e:
+        logger.error(f"Validation error in text parsing: {str(e)}")
         raise HTTPException(
-            status_code=501,
-            detail="Text parsing "
+            status_code=400,
+            detail=f"Invalid input: {str(e)}"
         )
     except Exception as e:
         logger.error(f"Text parsing failed: {str(e)}", exc_info=True)
@@ -291,12 +333,48 @@ async def upload_text(
 @router.post("/api/download_ics")
 async def download_ics(request: ICSDownloadRequest):
     """
-    Args:
-        request
-        
-    Returns:
-        ICS file stream
+    Generate and download ICS calendar file from event data.
     
+    Workflow:
+    1. Validate event data
+    2. Parse datetime strings (ISO 8601 format)
+    3. Create Event objects
+    4. Generate ICS content
+    5. Stream ICS file to client
+    
+    Request:
+    {
+        "events": [
+            {
+                "title": "Event Title" (required),
+                "start_time": "2025-11-22T14:00:00" (required, ISO 8601),
+                "end_time": "2025-11-22T15:00:00" (required, ISO 8601),
+                "location": "Event Location" (optional),
+                "description": "Event Description" (optional)
+            }
+        ]
+    }
+    
+    Returns:
+        ICS file (text/calendar) as stream for download
+        Filename: calendar.ics
+    
+    Error Responses:
+        400: Events list is empty or invalid format
+        422: Datetime format is incorrect (not ISO 8601)
+        500: ICS generation failed
+    
+    Example:
+        curl -X POST http://localhost:8000/api/download_ics \\
+          -H "Content-Type: application/json" \\
+          -d '{
+            "events": [{
+              "title": "Team Meeting",
+              "start_time": "2025-11-22T14:00:00",
+              "end_time": "2025-11-22T15:00:00",
+              "location": "Conference Room A"
+            }]
+          }'
     """
     try:
         if not request.events or len(request.events) == 0:
