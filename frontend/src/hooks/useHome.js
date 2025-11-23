@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
 import {
-  uploadImage,
   uploadImages,
   uploadText,
   downloadICS,
@@ -158,15 +157,21 @@ export function useHome() {
         let allExtractedText = "";
         let failedFiles = [];
 
-        // Use batch upload for multiple images
-        if (images.length > 1) {
-          try {
-            const uploadRes = await uploadImages(images);
-            if (!uploadRes.success) {
-              throw new Error(uploadRes.message || "Batch upload failed");
-            }
+        try {
+          // Unified upload: supports both single and multiple files
+          const uploadRes = await uploadImages(images);
+          if (!uploadRes.success) {
+            throw new Error(uploadRes.message || "Upload failed");
+          }
 
-            // Process results
+          // Handle response based on file count
+          if (images.length === 1) {
+            // Single file response
+            if (uploadRes.text && uploadRes.text.trim().length > 0) {
+              allExtractedText = uploadRes.text;
+            }
+          } else {
+            // Multiple files response
             for (const result of uploadRes.results) {
               if (
                 result.success &&
@@ -183,20 +188,10 @@ export function useHome() {
             // Show warning if some files failed
             if (failedFiles.length > 0) {
               console.warn("Some files failed to process:", failedFiles);
-              logger.warning(`Upload warning: ${failedFiles.join("; ")}`);
             }
-          } catch (err) {
-            throw new Error(`Batch upload failed: ${err.message}`);
           }
-        } else {
-          // Single image: use traditional upload
-          const uploadRes = await uploadImage(images[0]);
-          if (!uploadRes.success) {
-            throw new Error(uploadRes.message || "Image upload failed");
-          }
-          if (uploadRes.text && uploadRes.text.trim().length > 0) {
-            allExtractedText = uploadRes.text;
-          }
+        } catch (err) {
+          throw new Error(`Upload failed: ${err.message}`);
         }
 
         // If text extracted, parse it to events

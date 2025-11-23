@@ -2,8 +2,7 @@
 API router definition
 
 - upload
-    - /api/upload/img: OCR single image upload
-    - /api/upload/imgs: OCR multiple images upload (batch)
+    - /api/upload: Unified OCR image upload (handles single or multiple images)
     - /api/upload/text: Text parsing
 - /api/download_ics: Download ICS file
 - /api/check_health: Health check
@@ -23,20 +22,124 @@ logger = logging.getLogger(__name__)
 router = APIRouter()
 
 
+# ===== Helper Functions =====
+
+async def _process_ocr_files(files_list: List[UploadFile], lang: str):
+    """
+    Shared OCR processing logic for single and multiple files
+    
+    Args:
+        files_list: List of UploadFile objects
+        lang: OCR language
+        
+    Returns:
+        Dictionary containing processing results
+    """
+    from app.services.ocr_service import OCRService
+    
+    ocr_service = OCRService(lang=lang)
+    
+    if not ocr_service.is_tesseract_available():
+        raise HTTPException(
+            status_code=503,
+            detail="Tesseract OCR is not installed or unavailable"
+        )
+    
+    results = []
+    combined_text_parts = []
+    successful_count = 0
+    
+    for file in files_list:
+        # File type check
+        if not file.content_type or not file.content_type.startswith("image/"):
+            results.append({
+                "filename": file.filename,
+                "success": False,
+                "text": "",
+                "length": 0,
+                "message": f"Unsupported file type: {file.content_type}"
+            })
+            continue
+        
+        try:
+            image_bytes = await file.read()
+            
+            if len(image_bytes) == 0:
+                results.append({
+                    "filename": file.filename,
+                    "success": False,
+                    "text": "",
+                    "length": 0,
+                    "message": "Empty file"
+                })
+                continue
+            
+            text = ocr_service.extract_text_from_bytes(image_bytes)
+            
+            if not text or text.strip() == "":
+                results.append({
+                    "filename": file.filename,
+                    "success": True,
+                    "text": "",
+                    "length": 0,
+                    "message": "Unable to detect text"
+                })
+                logger.warning(f"Unable to detect text: {file.filename}")
+            else:
+                results.append({
+                    "filename": file.filename,
+                    "success": True,
+                    "text": text,
+                    "length": len(text),
+                    "message": "OCR success"
+                })
+                combined_text_parts.append(text)
+                successful_count += 1
+                logger.info(f"OCR success: {file.filename}, length: {len(text)}")
+                
+        except Exception as e:
+            results.append({
+                "filename": file.filename,
+                "success": False,
+                "text": "",
+                "length": 0,
+                "message": f"OCR failed: {str(e)}"
+            })
+            logger.error(f"OCR failed for {file.filename}: {str(e)}")
+    
+    combined_text = '\n'.join(combined_text_parts)
+    combined_length = len(combined_text)
+    failed_count = len(files_list) - successful_count
+    
+    return {
+        "results": results,
+        "total": len(files_list),
+        "successful": successful_count,
+        "failed": failed_count,
+        "combined_text": combined_text,
+        "combined_length": combined_length
+    }
+
+
 # ===== API =====
 
 
-@router.post("/api/upload/img")
-async def upload_img(
-    file: UploadFile = File(...),
+@router.post("/api/upload")
+async def upload(
+    file: Optional[UploadFile] = File(None),
+    files: Optional[List[UploadFile]] = File(None),
     lang: Optional[str] = Query("chi_sim+eng", description="OCR Language")
 ):
     """
+    Unified image upload endpoint handling both single and multiple files.
+    
     Args:
-        file: PNG, JPG, JPEG, BMP, TIFF
-        lang: deafult: chi_sim+eng
+        file: Single image file (PNG, JPG, JPEG, BMP, TIFF)
+        files: Multiple image files
+        lang: OCR language (default: chi_sim+eng)
         
     Returns:
+        Single file: 
         {
             "success": bool,
             "text": str,
@@ -45,80 +148,7 @@ async def upload_img(
             "message": str
         }
         
-    Example:
-        ```bash
-        curl -X POST "http://localhost:8000/api/upload_img" \\
-             -F "file=@/path/to/image.png" \\
-             -H "accept: application/json"
-        ```
-    """
-    try:
-        # file type check
-        if not file.content_type or not file.content_type.startswith("image/"):
-            raise HTTPException(
-                status_code=400,
-                detail=f"Unsupported file type: {file.content_type}"
-            )
-        
-        image_bytes = await file.read()
-        
-        if len(image_bytes) == 0:
-            raise HTTPException(status_code=400, detail="empty file")
-        
-        from app.services.ocr_service import OCRService
-        ocr_service = OCRService(lang=lang)
-        
-        if not ocr_service.is_tesseract_available():
-            raise HTTPException(
-                status_code=503,
-                detail="Tesseract OCR is not installed or unavaliable"
-            )
-
-        text = ocr_service.extract_text_from_bytes(image_bytes)
-        
-        if not text or text.strip() == "":
-            logger.warning(f"Unable to detect text: {file.filename}")
-            return {
-                "success": True,
-                "text": "",
-                "filename": file.filename,
-                "length": 0,
-                "message": "Unable to detect text"
-            }
-        
-        logger.info(f"Upload file success: {file.filename}, length: {len(text)}")
-        
-        return {
-            "success": True,
-            "text": text,
-            "filename": file.filename,
-            "length": len(text),
-            "message": "OCR success"
-        }
-        
-    except HTTPException:
-        raise
-    except Exception as e:
-        logger.error(f"OCR failed: {str(e)}", exc_info=True)
-        raise HTTPException(
-            status_code=500,
-            detail=f"OCR failed: {str(e)}"
-        )
-
-
-@router.post("/api/upload/imgs")
-async def upload_imgs(
-    files: List[UploadFile] = File(...),
-    lang: Optional[str] = Query("chi_sim+eng", description="OCR Language")
-):
-    """
-    Batch upload multiple images and extract text via OCR
-    
-    Args:
-        files: Multiple image files (PNG, JPG, JPEG, BMP, TIFF)
-        lang: OCR language (default: chi_sim+eng)
-        
-    Returns:
+        Multiple files:
         {
             "success": bool,
             "results": [
@@ -136,114 +166,65 @@ async def upload_imgs(
             "combined_text": str,
             "combined_length": int
         }
-        
-    Example:
-        ```bash
-        curl -X POST "http://localhost:8000/api/upload/imgs" \\
-             -F "files=@image1.png" \\
-             -F "files=@image2.png" \\
-             -H "accept: application/json"
-        ```
     """
     try:
-        if not files or len(files) == 0:
-            raise HTTPException(status_code=400, detail="No files provided")
-        
-        from app.services.ocr_service import OCRService
-        
-        ocr_service = OCRService(lang=lang)
-        
-        if not ocr_service.is_tesseract_available():
+        # Validate input: exactly one of file or files must be provided
+        if file and files:
             raise HTTPException(
-                status_code=503,
-                detail="Tesseract OCR is not installed or unavailable"
+                status_code=400,
+                detail="Provide either 'file' (single) or 'files' (multiple), not both"
             )
         
-        results = []
-        combined_text_parts = []
-        successful_count = 0
+        if not file and not files:
+            raise HTTPException(
+                status_code=400,
+                detail="No files provided. Provide either 'file' (single) or 'files' (multiple)"
+            )
         
-        for file in files:
-            # File type check
-            if not file.content_type or not file.content_type.startswith("image/"):
-                results.append({
-                    "filename": file.filename,
-                    "success": False,
-                    "text": "",
-                    "length": 0,
-                    "message": f"Unsupported file type: {file.content_type}"
-                })
-                continue
+        # Process based on input type
+        if file:
+            # Single file upload
+            logger.info(f"Processing single file: {file.filename}")
+            result = await _process_ocr_files([file], lang)
             
-            try:
-                image_bytes = await file.read()
-                
-                if len(image_bytes) == 0:
-                    results.append({
-                        "filename": file.filename,
-                        "success": False,
-                        "text": "",
-                        "length": 0,
-                        "message": "Empty file"
-                    })
-                    continue
-                
-                text = ocr_service.extract_text_from_bytes(image_bytes)
-                
-                if not text or text.strip() == "":
-                    results.append({
-                        "filename": file.filename,
-                        "success": True,
-                        "text": "",
-                        "length": 0,
-                        "message": "Unable to detect text"
-                    })
-                    logger.warning(f"Unable to detect text: {file.filename}")
-                else:
-                    results.append({
-                        "filename": file.filename,
-                        "success": True,
-                        "text": text,
-                        "length": len(text),
-                        "message": "OCR success"
-                    })
-                    combined_text_parts.append(text)
-                    successful_count += 1
-                    logger.info(f"OCR success: {file.filename}, length: {len(text)}")
-                    
-            except Exception as e:
-                results.append({
-                    "filename": file.filename,
-                    "success": False,
-                    "text": "",
-                    "length": 0,
-                    "message": f"OCR failed: {str(e)}"
-                })
-                logger.error(f"OCR failed for {file.filename}: {str(e)}")
+            # Return simplified format for single file
+            single_result = result["results"][0]
+            return {
+                "success": True,
+                "text": single_result["text"],
+                "filename": single_result["filename"],
+                "length": single_result["length"],
+                "message": single_result["message"]
+            }
         
-        combined_text = '\n'.join(combined_text_parts)
-        combined_length = len(combined_text)
-        failed_count = len(files) - successful_count
-        
-        logger.info(f"Batch OCR complete: {len(files)} total, {successful_count} successful, {failed_count} failed")
-        
-        return {
-            "success": True,
-            "results": results,
-            "total": len(files),
-            "successful": successful_count,
-            "failed": failed_count,
-            "combined_text": combined_text,
-            "combined_length": combined_length
-        }
-        
+        else:
+            # Multiple files upload
+            if not files or len(files) == 0:
+                raise HTTPException(status_code=400, detail="No files provided")
+            
+            logger.info(f"Processing {len(files)} files")
+            result = await _process_ocr_files(files, lang)
+            
+            # Return detailed format for multiple files
+            logger.info(f"Batch OCR complete: {result['total']} total, {result['successful']} successful, {result['failed']} failed")
+            
+            return {
+                "success": True,
+                "results": result["results"],
+                "total": result["total"],
+                "successful": result["successful"],
+                "failed": result["failed"],
+                "combined_text": result["combined_text"],
+                "combined_length": result["combined_length"]
+            }
+    
     except HTTPException:
         raise
     except Exception as e:
-        logger.error(f"Batch OCR failed: {str(e)}", exc_info=True)
+        logger.error(f"Upload failed: {str(e)}", exc_info=True)
         raise HTTPException(
             status_code=500,
-            detail=f"Batch OCR failed: {str(e)}"
+            detail=f"Upload failed: {str(e)}"
         )
 
 
