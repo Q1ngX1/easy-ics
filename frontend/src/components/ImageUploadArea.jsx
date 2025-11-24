@@ -49,12 +49,17 @@ export default function ImageUploadArea({
                         <span className="file-count">✓ {images.length} image{images.length !== 1 ? 's' : ''} selected</span>
                         <div className="image-list">
                             {images.map((img, index) => (
-                                <div key={index} className="image-item">
+                                <div 
+                                    key={index} 
+                                    className="image-item"
+                                    onClick={(e) => e.stopPropagation()}
+                                >
                                     <span className="image-name">{img.name}</span>
                                     <button
                                         type="button"
                                         className="remove-image-btn"
                                         onClick={(e) => {
+                                            e.preventDefault()
                                             e.stopPropagation()
                                             onRemoveImage(index)
                                         }}

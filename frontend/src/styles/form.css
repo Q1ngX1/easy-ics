@@ -12,23 +12,23 @@
 
 .drag-drop-area {
   position: relative;
-  border: 2px dashed #667eea;
+  border: 2px dashed #1e3a8a;
   border-radius: 12px;
   padding: 2.5rem;
   text-align: center;
-  background: rgba(102, 126, 234, 0.05);
+  background: rgba(30, 58, 138, 0.05);
   transition: all 0.3s ease;
   cursor: pointer;
 }
 
 .drag-drop-area:hover {
-  border-color: #764ba2;
-  background: rgba(118, 75, 162, 0.08);
+  border-color: #1e40af;
+  background: rgba(30, 64, 175, 0.08);
 }
 
 .drag-drop-area.active {
-  border-color: #764ba2;
-  background: rgba(118, 75, 162, 0.12);
+  border-color: #1e40af;
+  background: rgba(30, 64, 175, 0.12);
   transform: scale(1.02);
 }
 
@@ -63,14 +63,14 @@
 
 .drag-drop-text {
   font-size: 1rem;
-  color: #667eea;
+  color: #1e3a8a;
   font-weight: 500;
   line-height: 1.5;
 }
 
 .file-count {
   font-size: 1rem;
-  color: #764ba2;
+  color: #1e40af;
   font-weight: 600;
   margin-bottom: 1rem;
 }
@@ -92,14 +92,14 @@
   gap: 1rem;
   padding: 0.8rem 1rem;
   background: white;
-  border: 1px solid #e0e0e0;
+  border: 1px solid #d1d5db;
   border-radius: 6px;
   transition: all 0.2s ease;
 }
 
 .image-item:hover {
-  background: #f9f9f9;
-  border-color: #667eea;
+  background: #f3f4f6;
+  border-color: #1e3a8a;
 }
 
 .image-name {
@@ -149,7 +149,7 @@
 .text-input {
   padding: 1rem;
   font-size: 1rem;
-  border: 2px solid #e0e0e0;
+  border: 2px solid #d1d5db;
   border-radius: 8px;
   font-family: inherit;
   color: #333;
@@ -160,8 +160,8 @@
 
 .text-input:focus {
   outline: none;
-  border-color: #667eea;
-  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+  border-color: #1e3a8a;
+  box-shadow: 0 0 0 3px rgba(30, 58, 138, 0.1);
 }
 
 .text-input::placeholder {
@@ -179,7 +179,7 @@
   position: fixed;
   z-index: 3000;
   background: white;
-  border: 1px solid #e0e0e0;
+  border: 1px solid #d1d5db;
   border-radius: 6px;
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
   overflow: hidden;
@@ -192,15 +192,15 @@
 }
 
 .context-menu-item:hover {
-  background: #f5f7ff;
+  background: #f3f4f6;
 }
 
 .check-box {
   margin: 1.5rem 0;
   padding: 1rem;
-  background: #f9f9f9;
+  background: #f3f4f6;
   border-radius: 8px;
-  border: 1px solid #e0e0e0;
+  border: 1px solid #d1d5db;
   display: flex;
   gap: 0.8rem;
 }
@@ -219,7 +219,7 @@
   width: 18px;
   height: 18px;
   cursor: pointer;
-  accent-color: #667eea;
+  accent-color: #1e3a8a;
 }
 
 .checkbox-label span {
@@ -234,5 +234,5 @@
 }
 
 .checkbox-label input[type="checkbox"]:checked {
-  background-color: #667eea;
+  background-color: #1e3a8a;
 }

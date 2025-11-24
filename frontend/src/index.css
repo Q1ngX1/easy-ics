@@ -15,12 +15,12 @@
   -moz-osx-font-smoothing: grayscale;
 
   /* 颜色变量 */
-  --primary-color: #667eea;
-  --secondary-color: #4ba296;
-  --text-color: #333;
-  --text-light: #666;
-  --border-color: #e0e0e0;
-  --bg-light: #f9f9f9;
+  --primary-color: #2a4dad;
+  --secondary-color: #1e40af;
+  --text-color: #1f2937;
+  --text-light: #6b7280;
+  --border-color: #d1d5db;
+  --bg-light: #f3f4f6;
 }
 
 * {

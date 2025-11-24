@@ -17,7 +17,7 @@ import {
     ImageUploadArea,
     TextInputField,
     ErrorMessage,
-    ResultMessage,
+    EventsList,
     LocationTimezoneSettings,
     FormActions,
 } from '../components'
@@ -102,17 +102,7 @@ export default function OCRPanel() {
                 onTimezoneChange={locationSettings.handleTimezoneChange}
             />
 
-            {/* Result Message Component */}
-            <ResultMessage
-                result={processing.result}
-                loading={processing.loading}
-                onDownload={processing.handleDownloadICS}
-                onClose={() => {
-                    processing.setResult(null)
-                    imageUpload.clearImages()
-                    setText('')
-                }}
-            />
+            
 
             <form onSubmit={handleStart} className="simple-form">
                 {/* Image Upload Area Component */}
@@ -153,6 +143,18 @@ export default function OCRPanel() {
                     onClear={handleClear}
                 />
             </form>
+
+            
+            {/* Events List Component */}
+            <EventsList
+                events={processing.result}
+                loading={processing.loading}
+                onClose={() => {
+                    processing.setResult(null)
+                    imageUpload.clearImages()
+                    setText('')
+                }}
+            />
         </div>
     )
 }

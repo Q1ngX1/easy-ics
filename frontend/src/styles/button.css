@@ -14,20 +14,20 @@
   border-radius: 8px;
   cursor: pointer;
   transition: all 0.3s ease;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 100%);
   color: white;
-  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+  box-shadow: 0 4px 12px rgba(30, 58, 138, 0.3);
 }
 
 .cta-button:hover {
   transform: translateY(-2px);
-  box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+  box-shadow: 0 8px 20px rgba(30, 58, 138, 0.4);
 }
 
 .cta-button.secondary {
   background: white;
-  color: #667eea;
-  border: 2px solid #667eea;
+  color: #1e3a8a;
+  border: 2px solid #1e3a8a;
   box-shadow: none;
 }
 
@@ -38,12 +38,12 @@
 .cta-button:disabled {
   opacity: 0.6;
   cursor: not-allowed;
-  box-shadow: 0 2px 8px rgba(102, 126, 234, 0.1);
+  box-shadow: 0 2px 8px rgba(30, 58, 138, 0.1);
 }
 
 .cta-button:disabled:hover {
   transform: none;
-  box-shadow: 0 2px 8px rgba(102, 126, 234, 0.1);
+  box-shadow: 0 2px 8px rgba(30, 58, 138, 0.1);
 }
 
 .button-row {
