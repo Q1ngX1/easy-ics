@@ -8,4 +8,4 @@ Easy ICS is a lightweight application that converts schedule information from im
 
 ## License
 
-MIT License - See LICENSE file for details
+MIT License
