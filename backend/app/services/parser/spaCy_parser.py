@@ -1,3 +1,0 @@
-"""
-Second-class parser: spaCy
-"""
